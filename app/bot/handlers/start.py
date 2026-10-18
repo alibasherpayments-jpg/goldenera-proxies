@@ -104,59 +104,35 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
 
     if lang == "ar":
         return (
-            f"⚡️ *أهلاً بك في جولدن إيرا | GOLDENERA 5G*\n"
+            f"⚡️ *أهلاً بك في GOLDENERA 5G PROXIES*\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *معرّف الحساب:* `{acc_id}`\n"
-            f"🎯 *النقاط:* `{points} نقطة` (${balance_usd})\n"
-            f"🌐 *اللغة الحالية:* 🇸🇦 العربية\n"
-            f"━━━━━━━━━━━━━━━━━━━━━\n"
-            f"🚀 *أقوى وأسرع بروكسيات 5G وسكنية نقية 100%*\n"
-            f"• سرعات اتصال فائقة تصل إلى 1 Gbps\n"
-            f"• تدوير فوري للآيبي ومواقع جغرافية متعددة\n"
-            f"• تسليم فوري وتلقائي بمجرد الشراء\n\n"
-            f"👇 *استخدم أزرار القائمة بالأسفل للتنقل بسهولة:*"
+            f"💰 *الرصيد:* `{points} نقطة` (${balance_usd})\n\n"
+            f"اختر من القائمة بالأسفل لبدء الاستخدام 👇"
         )
     elif lang == "ru":
         return (
-            f"⚡️ *Добро пожаловать в GOLDENERA 5G*\n"
+            f"⚡️ *Добро пожаловать в GOLDENERA 5G PROXIES*\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *ID аккаунта:* `{acc_id}`\n"
-            f"🎯 *Баллы:* `{points} баллов` (${balance_usd})\n"
-            f"🌐 *Язык:* 🇷🇺 Русский\n"
-            f"━━━━━━━━━━━━━━━━━━━━━\n"
-            f"🚀 *Быстрые мобильные 5G и резидентские прокси*\n"
-            f"• Скорость до 1 Гбит/с\n"
-            f"• Мгновенная ротация IP\n"
-            f"• Автоматическая выдача\n\n"
-            f"👇 *Используйте кнопки меню внизу для навигации:*"
+            f"💰 *Баланс:* `{points} баллов` (${balance_usd})\n\n"
+            f"Выберите нужный раздел в меню ниже 👇"
         )
     elif lang == "hi":
         return (
-            f"⚡️ *GoldenEra 5G प्रॉक्सी में आपका स्वागत है*\n"
+            f"⚡️ *GOLDENERA 5G PROXIES में आपका स्वागत है*\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *अकाउंट आईडी:* `{acc_id}`\n"
-            f"🎯 *पॉइंट्स:* `{points} पॉइंट्स` (${balance_usd})\n"
-            f"🌐 *भाषा:* 🇮🇳 हिन्दी\n"
-            f"━━━━━━━━━━━━━━━━━━━━━\n"
-            f"🚀 *हाई-स्पीड 5G और रेसिडेंशियल प्रॉक्सी*\n"
-            f"• 1 Gbps तक की स्पीड\n"
-            f"• तुरंत IP रोटेशन\n"
-            f"• तुरंत डिलीवरी\n\n"
-            f"👇 *नेविगेट करने के लिए नीचे दिए गए मेनू का उपयोग करें:*"
+            f"💰 *बैलेंस:* `{points} पॉइंट्स` (${balance_usd})\n\n"
+            f"शुरू करने के लिए नीचे दिए गए मेनू से चुनें 👇"
         )
     else:
         return (
             f"⚡️ *WELCOME TO GOLDENERA 5G PROXIES*\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *Account ID:* `{acc_id}`\n"
-            f"🎯 *Points:* `{points} pts` (${balance_usd})\n"
-            f"🌐 *Language:* 🇬🇧 English\n"
-            f"━━━━━━━━━━━━━━━━━━━━━\n"
-            f"🚀 *Fastest 5G Mobile & Residential Proxies*\n"
-            f"• Ultra-fast speeds up to 1 Gbps\n"
-            f"• Instant IP rotation & Multiple Geo-Locations\n"
-            f"• Instant automated delivery\n\n"
-            f"👇 *Use the bottom menu buttons to navigate:* "
+            f"💰 *Balance:* `{points} pts` (${balance_usd})\n\n"
+            f"Select an option from the menu below 👇"
         )
 
 
@@ -284,24 +260,13 @@ async def handle_reply_buy(message: Message) -> None:
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=t("catalog_prime_hyper", lang), callback_data="buy:cat:prime")],
+            [InlineKeyboardButton(text=t("catalog_prime", lang), callback_data="buy:cat:prime")],
+            [InlineKeyboardButton(text=t("catalog_hyper", lang), callback_data="buy:cat:hyper")],
             [InlineKeyboardButton(text=t("catalog_nexus", lang), callback_data="buy:cat:nexus")],
             [InlineKeyboardButton(text=t("catalog_titan", lang), callback_data="buy:cat:titan")],
         ]
     )
-    text = (
-        "🚀 *اختر باقة البروكسي التي تناسبك:*\n"
-        "━━━━━━━━━━━━━━━━━━━━━\n"
-        "⚡️ *PRIME / HYPER*: بروكسيات 5G فائقة السرعة وتدوير غير محدود.\n"
-        "🔄 *NEXUS*: تدوير فوري للآيبي ومواقع جغرافية متعددة.\n"
-        "💎 *TITAN*: بروكسيات سكنية فائقة النقاء للأعمال الحساسة.\n"
-    ) if lang == "ar" else (
-        "🚀 *Select a Proxy Package:*\n"
-        "━━━━━━━━━━━━━━━━━━━━━\n"
-        "⚡️ *PRIME / HYPER*: High-speed 5G Mobile proxies with unlimited rotation.\n"
-        "🔄 *NEXUS*: Instant API IP rotation and extensive geo-locations.\n"
-        "💎 *TITAN*: Elite Residential proxies for sensitive operations.\n"
-    )
+    text = t("catalog_choose_category", lang)
     await message.answer(text=text, parse_mode="Markdown", reply_markup=kb)
 
 

@@ -42,28 +42,15 @@ async def choose_category(callback: CallbackQuery):
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text=t("catalog_prime_hyper", lang), callback_data="buy:cat:prime"
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text=t("catalog_nexus", lang), callback_data="buy:cat:nexus"
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text=t("catalog_titan", lang), callback_data="buy:cat:titan"
-                )
-            ],
+            [InlineKeyboardButton(text=t("catalog_prime", lang), callback_data="buy:cat:prime")],
+            [InlineKeyboardButton(text=t("catalog_hyper", lang), callback_data="buy:cat:hyper")],
+            [InlineKeyboardButton(text=t("catalog_nexus", lang), callback_data="buy:cat:nexus")],
+            [InlineKeyboardButton(text=t("catalog_titan", lang), callback_data="buy:cat:titan")],
             [InlineKeyboardButton(text=t("btn_back", lang), callback_data="menu:main")],
         ]
     )
 
-    text = f"{t('catalog_choose_category', lang)}\n\n" + (
-        "اختر نوع البروكسي المناسب لاحتياجاتك:" if lang == "ar" else "Select the proxy type that fits your needs:"
-    )
+    text = t("catalog_choose_category", lang)
 
     try:
         await callback.message.edit_text(text, reply_markup=kb, parse_mode="Markdown")
@@ -95,15 +82,18 @@ async def choose_server(callback: CallbackQuery, state: FSMContext):
         nexus_servers = catalog_servers.get("nexus_store_servers", [])
 
         if category == "nexus":
-            servers_list = nexus_servers or all_servers
+            servers_list = nexus_servers or [s for s in all_servers if s.get("category", "").lower() == "nexus"]
+        elif category == "titan":
+            servers_list = [s for s in all_servers if s.get("category", "").lower() == "titan"]
+        elif category == "hyper":
+            servers_list = [s for s in all_servers if s.get("category", "").lower() == "hyper"]
+        elif category == "prime":
+            servers_list = [s for s in all_servers if s.get("category", "").lower() == "prime"]
         else:
-            servers_list = [
-                s for s in all_servers
-                if s.get("category", "").lower() in (category.lower(), "prime", "hyper")
-            ]
+            servers_list = [s for s in all_servers if s.get("category", "").lower() == category.lower()]
 
         if not servers_list:
-            servers_list = all_servers[:8]
+            servers_list = all_servers[:10]
 
         rows = []
         for s in servers_list[:10]:
@@ -128,19 +118,24 @@ async def choose_server(callback: CallbackQuery, state: FSMContext):
         rows.append([InlineKeyboardButton(text=t("btn_back", lang), callback_data="menu:buy")])
         kb = InlineKeyboardMarkup(inline_keyboard=rows)
 
-        text = f"{t('catalog_choose_server', lang)}\n\n" + (
-            "اختر السيرفر أو الدولة المطلوبة:" if lang == "ar" else "Choose your preferred server or country:"
-        )
+        cat_labels = {
+            "prime": "⚡ PRIME 5G",
+            "hyper": "🚀 HYPER 5G",
+            "nexus": "🌐 NEXUS",
+            "titan": "🛡️ TITAN",
+        }
+        cat_name = cat_labels.get(category, category.upper())
+        text = f"📍 *سيرفرات {cat_name} المتاحة:*" if lang == "ar" else f"📍 *Available {cat_name} Servers:*"
         await wait_msg.edit_text(text, reply_markup=kb, parse_mode="Markdown")
 
     except Exception as e:
         logger.error(f"Catalog servers error: {e}")
-        await wait_msg.edit_text(
-            f"⚠️ {e}\n\n" + (
-                "لم نتمكن من جلب السيرفرات حالياً، يرجى المحاولة بعد قليل." if lang == "ar"
-                else "Could not fetch servers at the moment, please try again."
-            )
+        err_msg = (
+            "⚠️ لا يمكن جلب السيرفرات حالياً، يرجى المحاولة لاحقاً." if lang == "ar"
+            else "⚠️ Could not fetch servers at the moment, please try again."
         )
+        kb_back = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=t("btn_back", lang), callback_data="menu:buy")]])
+        await wait_msg.edit_text(err_msg, reply_markup=kb_back, parse_mode="Markdown")
 
 
 @router.callback_query(F.data.startswith("buy:full:"))
@@ -186,13 +181,7 @@ async def choose_mode(callback: CallbackQuery, state: FSMContext):
         ]
     )
 
-    text = f"{t('catalog_choose_mode', lang)}\n\n" + (
-        "• **Rotate**: اتصال باسم مستخدم وكلمة مرور مع تدوير الـ IP.\n"
-        "• **Inject**: اتصال عبر إضافة الـ IP الخاص بك للقائمة البيضاء."
-        if lang == "ar" else
-        "• **Rotate**: Username & Password authentication with IP rotation.\n"
-        "• **Inject**: Whitelisted IP authentication."
-    )
+    text = "⚙️ *اختر طريقة الاتصال بالبروكسي:*" if lang == "ar" else "⚙️ *Select proxy connection mode:*"
 
     try:
         await callback.message.edit_text(text, reply_markup=kb, parse_mode="Markdown")
