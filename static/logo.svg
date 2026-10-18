@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGlow" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#1e2230"/>
+      <stop offset="60%" stop-color="#0c0d12"/>
+      <stop offset="100%" stop-color="#07080a"/>
+    </radialGradient>
+
+    <!-- Metallic Gold Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3B0"/>
+      <stop offset="25%" stop-color="#FFD700"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="75%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+
+    <!-- Highlight Gold -->
+    <linearGradient id="goldLight" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="50%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#FFFBEB"/>
+    </linearGradient>
+
+    <!-- Neon Emerald 5G Gradient -->
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6EE7B7"/>
+      <stop offset="50%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+
+    <!-- Outer Gold Border Gradient -->
+    <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="30%" stop-color="#D97706"/>
+      <stop offset="70%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#78350F"/>
+    </linearGradient>
+
+    <!-- Drop Shadows -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.8"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#F59E0B" flood-opacity="0.3"/>
+    </filter>
+    <filter id="emeraldGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#10B981" flood-opacity="0.7"/>
+    </filter>
+  </defs>
+
+  <!-- Outer Squircle Container -->
+  <rect x="24" y="24" width="464" height="464" rx="112" fill="url(#bgGlow)" stroke="url(#goldBorder)" stroke-width="12" filter="url(#shadow)"/>
+
+  <!-- Subtle Inner Border -->
+  <rect x="42" y="42" width="428" height="428" rx="96" fill="none" stroke="#FDE68A" stroke-width="2" stroke-opacity="0.25"/>
+
+  <!-- Background Cyber Circuit Grid Lines -->
+  <path d="M 60 256 L 140 256 L 180 200" stroke="#F59E0B" stroke-width="2" stroke-opacity="0.15" fill="none"/>
+  <path d="M 452 256 L 372 256 L 332 312" stroke="#10B981" stroke-width="2" stroke-opacity="0.2" fill="none"/>
+  <circle cx="180" cy="200" r="4" fill="#F59E0B" fill-opacity="0.4"/>
+  <circle cx="332" cy="312" r="4" fill="#10B981" fill-opacity="0.5"/>
+
+  <!-- Stylized Geometric "G" Body -->
+  <!-- Top arc, down to bottom, up to center horizontal bar -->
+  <path d="M 368 156 
+           C 334 116, 280 100, 230 108
+           C 160 120, 112 180, 112 256
+           C 112 332, 160 392, 230 404
+           C 294 414, 348 388, 380 340
+           L 380 252
+           L 248 252
+           L 248 300
+           L 326 300
+           L 326 332
+           C 304 354, 270 364, 236 358
+           C 188 350, 164 308, 164 256
+           C 164 204, 188 162, 236 154
+           C 274 148, 312 164, 334 192
+           Z" 
+        fill="url(#goldGrad)" 
+        filter="url(#shadow)"/>
+
+  <!-- "G" Inner Bevel Accent -->
+  <path d="M 368 156 
+           C 334 116, 280 100, 230 108
+           C 160 120, 112 180, 112 256
+           L 134 256
+           C 134 194, 172 144, 232 134
+           C 272 128, 316 142, 348 174
+           Z" 
+        fill="url(#goldLight)" 
+        opacity="0.6"/>
+
+  <!-- 5G High-Speed Wireless Signal Arcs (Top-Right / Center) -->
+  <!-- Inner Arc -->
+  <path d="M 230 196 C 250 196, 266 212, 266 232" 
+        fill="none" stroke="url(#emeraldGrad)" stroke-width="8" stroke-linecap="round" filter="url(#emeraldGlow)"/>
+  <!-- Middle Arc -->
+  <path d="M 218 172 C 254 172, 288 198, 292 236" 
+        fill="none" stroke="url(#emeraldGrad)" stroke-width="9" stroke-linecap="round" filter="url(#emeraldGlow)"/>
+  <!-- Outer Arc -->
+  <path d="M 206 148 C 262 148, 312 184, 318 240" 
+        fill="none" stroke="url(#emeraldGrad)" stroke-width="10" stroke-linecap="round" filter="url(#emeraldGlow)"/>
+
+  <!-- "5G" Tech Badge (Bottom Right) -->
+  <g transform="translate(320, 360)">
+    <!-- Badge Background Pill -->
+    <rect x="-8" y="-4" width="136" height="58" rx="14" fill="#090a0f" stroke="url(#emeraldGrad)" stroke-width="3" filter="url(#emeraldGlow)"/>
+    <!-- 5G Typography -->
+    <text x="14" y="38" font-family="'Inter', 'JetBrains Mono', -apple-system, sans-serif" font-weight="900" font-size="34" fill="#10B981" letter-spacing="1">5G</text>
+    <!-- Lightning Bolt / Speed Notch -->
+    <path d="M 74 14 L 88 14 L 80 28 L 94 28 L 72 50 L 78 32 L 68 32 Z" fill="#FBBF24"/>
+  </g>
+
+  <!-- Speed Lightning Core in G Center -->
+  <circle cx="218" cy="232" r="7" fill="#6EE7B7" filter="url(#emeraldGlow)"/>
+</svg>

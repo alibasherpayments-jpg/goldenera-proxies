@@ -4,6 +4,9 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GoldenEra Admin — Dashboard</title>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo.png">
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -215,8 +218,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 <body>
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="logo-box">G</div>
-      <div class="logo-text">GoldenEra 5G</div>
+      <img src="/static/logo.png" alt="Logo" class="logo-img" style="width: 34px; height: 34px; border-radius: 6px; object-fit: cover; border: 1px solid #3f3f46; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);">
+      <div class="logo-text" style="font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; background: linear-gradient(135deg, #fafafa, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">GoldenEra 5G</div>
     </div>
     <ul class="nav-list">
       <li class="nav-item"><a href="/admin/dashboard" class="nav-link active">📊 Dashboard</a></li>

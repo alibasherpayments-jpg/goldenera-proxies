@@ -9,7 +9,8 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI, Cookie, Request
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
@@ -75,6 +76,27 @@ app.include_router(page_routes.router)
 @app.get("/")
 async def root():
     return RedirectResponse(url="/admin")
+
+
+# Mount static files & Favicon
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon_ico():
+    if os.path.exists("static/favicon.ico"):
+        return FileResponse("static/favicon.ico", media_type="image/x-icon")
+    elif os.path.exists("static/logo.svg"):
+        return FileResponse("static/logo.svg", media_type="image/svg+xml")
+    return JSONResponse(status_code=404, content={"error": "Favicon not found"})
+
+
+@app.get("/favicon.svg", include_in_schema=False)
+async def favicon_svg():
+    if os.path.exists("static/logo.svg"):
+        return FileResponse("static/logo.svg", media_type="image/svg+xml")
+    return JSONResponse(status_code=404, content={"error": "Favicon not found"})
 
 
 @app.get("/health")

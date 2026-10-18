@@ -7,7 +7,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from sqlalchemy import select, func, update, desc
+from sqlalchemy import select, func, update, desc, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -340,6 +340,62 @@ async def list_all_transactions(
             "per_page": per_page,
             "transactions": paginated,
         }
+
+
+class BatchDeleteRequest(BaseModel):
+    ids: list[str]
+
+
+@router.delete("/admin/api/transactions/{tx_id}")
+async def delete_single_transaction(tx_id: str, _admin=Depends(get_current_admin)):
+    async with AsyncSessionLocal() as db:
+        if tx_id.startswith("DEP-"):
+            dep_id_str = tx_id.replace("DEP-", "")
+            if not dep_id_str.isdigit():
+                raise HTTPException(status_code=400, detail="Invalid deposit transaction ID")
+            res = await db.execute(delete(Deposit).where(Deposit.id == int(dep_id_str)))
+            await db.commit()
+            if res.rowcount == 0:
+                raise HTTPException(status_code=404, detail="Deposit transaction not found")
+            return {"success": True, "deleted_id": tx_id}
+
+        elif tx_id.startswith("ORD-"):
+            ord_id_str = tx_id.replace("ORD-", "")
+            if not ord_id_str.isdigit():
+                raise HTTPException(status_code=400, detail="Invalid order transaction ID")
+            res = await db.execute(delete(Order).where(Order.id == int(ord_id_str)))
+            await db.commit()
+            if res.rowcount == 0:
+                raise HTTPException(status_code=404, detail="Order transaction not found")
+            return {"success": True, "deleted_id": tx_id}
+
+        raise HTTPException(status_code=400, detail="Unknown transaction format")
+
+
+@router.post("/admin/api/transactions/delete-batch")
+async def delete_batch_transactions(body: BatchDeleteRequest, _admin=Depends(get_current_admin)):
+    dep_ids = [
+        int(x.replace("DEP-", ""))
+        for x in body.ids
+        if x.startswith("DEP-") and x.replace("DEP-", "").isdigit()
+    ]
+    ord_ids = [
+        int(x.replace("ORD-", ""))
+        for x in body.ids
+        if x.startswith("ORD-") and x.replace("ORD-", "").isdigit()
+    ]
+
+    async with AsyncSessionLocal() as db:
+        deleted_count = 0
+        if dep_ids:
+            res_dep = await db.execute(delete(Deposit).where(Deposit.id.in_(dep_ids)))
+            deleted_count += res_dep.rowcount
+        if ord_ids:
+            res_ord = await db.execute(delete(Order).where(Order.id.in_(ord_ids)))
+            deleted_count += res_ord.rowcount
+        await db.commit()
+
+    return {"success": True, "deleted_count": deleted_count}
 
 
 @router.patch("/admin/api/users/{telegram_id}/balance")

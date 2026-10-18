@@ -4,6 +4,9 @@ LOGIN_HTML = """<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GoldenEra Admin — Sign In</title>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo.png">
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -121,7 +124,7 @@ LOGIN_HTML = """<!DOCTYPE html>
 <body>
   <div class="login-card">
     <div class="brand">
-      <div class="brand-logo">G</div>
+      <img src="/static/logo.png" alt="Logo" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid #3f3f46; box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);">
       <div>
         <div class="brand-title">GoldenEra Proxies</div>
         <div class="brand-sub">Admin Operations Center</div>
