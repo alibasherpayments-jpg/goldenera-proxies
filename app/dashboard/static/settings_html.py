@@ -90,6 +90,29 @@ SETTINGS_HTML = """<!DOCTYPE html>
               <div class="help-text">The official receiving mobile wallet number presented to customers in the Telegram bot deposit wizard.</div>
             </div>
 
+            <div style="border-top: 1px solid #27272a; margin: 1.75rem 0; padding-top: 1.5rem;">
+              <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem; color: #f59e0b;">🟡 Binance Pay & Auto-Verification Settings</div>
+              <div style="font-size: 0.78rem; color: #71717a; margin-bottom: 1.25rem;">Configure your Binance ID for customer transfers and optional API keys for 100% automatic real-time verification.</div>
+              
+              <div class="form-group">
+                <label for="binance-id">Official Binance ID / Pay ID</label>
+                <input type="text" id="binance-id" required placeholder="538860756">
+                <div class="help-text">Presented directly to customers in the bot when they choose Binance Pay deposit.</div>
+              </div>
+
+              <div class="form-group">
+                <label for="binance-api-key">Binance API Key (For 100% Instant Auto-Credit)</label>
+                <input type="text" id="binance-api-key" placeholder="Paste your Binance API Key (Read-Only)">
+                <div class="help-text">Allows the bot to query incoming Binance Pay transactions in real-time and credit user balances instantly without manual approval.</div>
+              </div>
+
+              <div class="form-group">
+                <label for="binance-secret-key">Binance Secret Key</label>
+                <input type="password" id="binance-secret-key" placeholder="Paste your Binance Secret Key">
+                <div class="help-text">Used to sign requests to Binance API securely. Leave blank if not changing.</div>
+              </div>
+            </div>
+
             <button type="submit" class="btn-save" id="btn-save">Save Settings 💾</button>
           </form>
         </div>
@@ -107,6 +130,11 @@ SETTINGS_HTML = """<!DOCTYPE html>
         document.getElementById('markup').value = d.markup_percent || 30;
         document.getElementById('rate').value = d.usd_to_egp_rate || 52;
         document.getElementById('vf-number').value = d.vodafone_cash_number || '';
+        document.getElementById('binance-id').value = d.binance_id || '538860756';
+        document.getElementById('binance-api-key').value = d.binance_api_key || '';
+        if (d.has_binance_secret) {
+          document.getElementById('binance-secret-key').placeholder = '•••••••••••••••• (Secret Key is saved)';
+        }
       } catch(e) {
         console.error(e);
       }
@@ -121,7 +149,10 @@ SETTINGS_HTML = """<!DOCTYPE html>
       const payload = {
         markup_percent: parseFloat(document.getElementById('markup').value),
         usd_to_egp_rate: parseFloat(document.getElementById('rate').value),
-        vodafone_cash_number: document.getElementById('vf-number').value.trim()
+        vodafone_cash_number: document.getElementById('vf-number').value.trim(),
+        binance_id: document.getElementById('binance-id').value.trim(),
+        binance_api_key: document.getElementById('binance-api-key').value.trim(),
+        binance_secret_key: document.getElementById('binance-secret-key').value.trim() || undefined
       };
       try {
         const res = await fetch('/admin/api/settings', {

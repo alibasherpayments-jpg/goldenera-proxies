@@ -44,7 +44,7 @@ async def show_wallet(callback: CallbackQuery):
                 f"📈 *إجمالي المشحون:* `${deposited}`\n"
                 f"🛒 *إجمالي المشتريات:* `${spent}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
-                f"💡 *شحن الرصيد:* يمكنك شحن رصيدك فوراً وبأمان عبر Binance USDT TRC-20 أو محفظة فودافون كاش."
+                f"💡 *شحن الرصيد:* يمكنك شحن رصيدك فوراً وبأمان عبر Binance Pay (ID: `538860756`) أو محفظة فودافون كاش."
             )
         elif lang == "ru":
             text = (
@@ -55,7 +55,7 @@ async def show_wallet(callback: CallbackQuery):
                 f"📈 *Всего пополнено:* `${deposited}`\n"
                 f"🛒 *Всего потрачено:* `${spent}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
-                f"💡 Пополняйте баланс через Binance USDT TRC-20 или Vodafone Cash."
+                f"💡 Пополняйте баланс через Binance Pay (ID: `538860756`) или Vodafone Cash."
             )
         elif lang == "hi":
             text = (
@@ -66,7 +66,7 @@ async def show_wallet(callback: CallbackQuery):
                 f"📈 *कुल जमा:* `${deposited}`\n"
                 f"🛒 *कुल खर्च:* `${spent}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
-                f"💡 आप Binance USDT या Vodafone Cash से तुरंत रिचार्ज कर सकते हैं।"
+                f"💡 आप Binance Pay (ID: `538860756`) या Vodafone Cash से तुरंत रिचार्ज कर सकते हैं।"
             )
         else:
             text = (
@@ -77,7 +77,7 @@ async def show_wallet(callback: CallbackQuery):
                 f"📈 *Total Deposited:* `${deposited}`\n"
                 f"🛒 *Total Spent:* `${spent}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
-                f"💡 *Top-up:* Instant deposits supported via Binance USDT TRC-20 and Vodafone Cash."
+                f"💡 *Top-up:* Instant deposits supported via Binance Pay (ID: `538860756`) and Vodafone Cash."
             )
 
         kb = InlineKeyboardMarkup(

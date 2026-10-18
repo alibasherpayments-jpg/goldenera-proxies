@@ -22,8 +22,13 @@ from app.bot.keyboards.main import (
     back_kb,
     admin_deposit_approve_kb,
     main_menu_kb,
+    reply_main_menu_kb,
 )
-from app.services.binance_service import verify_trc20_txid, BinanceVerificationError
+from app.services.binance_service import (
+    verify_deposit_txid,
+    get_binance_id,
+    BinanceVerificationError,
+)
 
 logger = logging.getLogger(__name__)
 router = Router(name="deposit")
@@ -33,6 +38,7 @@ router = Router(name="deposit")
 
 class BinanceDeposit(StatesGroup):
     waiting_txid = State()
+    waiting_amount = State()
 
 
 class DepositVF(StatesGroup):
@@ -96,18 +102,19 @@ async def cb_deposit_main(callback: CallbackQuery) -> None:
 async def cb_deposit_binance(callback: CallbackQuery, state: FSMContext) -> None:
     user, _wallet = await _get_user_and_wallet(callback.from_user.id)
     lang = user.language if user else "ar"
+    binance_id = await get_binance_id()
 
     await callback.message.edit_text(
         text=t(
             "deposit_binance_instructions",
             lang,
-            wallet_address=settings.BINANCE_WALLET_ADDRESS or "N/A",
+            binance_id=binance_id,
         ),
         parse_mode="Markdown",
         reply_markup=back_kb(lang),
     )
     await state.set_state(BinanceDeposit.waiting_txid)
-    await state.update_data(lang=lang)
+    await state.update_data(lang=lang, binance_id=binance_id)
     await callback.answer()
 
 
@@ -136,77 +143,113 @@ async def fsm_binance_txid(message: Message, state: FSMContext) -> None:
     )
 
     try:
-        result = await verify_trc20_txid(txid)
-    except BinanceVerificationError as exc:
-        logger.error("TronScan error: %s", exc)
-        await verifying_msg.edit_text(t("error_generic", lang), parse_mode="Markdown")
+        result = await verify_deposit_txid(txid)
+    except Exception as exc:
+        logger.error("Verification error for txid %s: %s", txid, exc)
+        result = {"valid": False, "needs_manual": True}
+
+    # Case 1: Verified automatically via Binance Pay API or TronScan
+    if result.get("valid") and result.get("confirmed"):
+        amount_usd: float = float(result.get("amount_usd", 0.0))
+        async with AsyncSessionLocal() as session:
+            dup = await session.execute(select(Deposit).where(Deposit.txid == txid))
+            if dup.scalar_one_or_none():
+                await verifying_msg.edit_text(t("deposit_txid_used", lang), parse_mode="Markdown")
+                await state.clear()
+                return
+
+            user_res = await session.execute(select(User).where(User.telegram_id == message.from_user.id))
+            user = user_res.scalar_one_or_none()
+            if not user:
+                await state.clear()
+                return
+
+            wallet_res = await session.execute(select(Wallet).where(Wallet.user_id == user.id))
+            wallet = wallet_res.scalar_one_or_none()
+            if not wallet:
+                wallet = Wallet(user_id=user.id, balance=0.0, total_deposited=0.0, total_spent=0.0)
+                session.add(wallet)
+
+            wallet.balance = round(wallet.balance + amount_usd, 6)
+            wallet.total_deposited = round(wallet.total_deposited + amount_usd, 6)
+
+            deposit = Deposit(
+                user_id=user.id,
+                method="binance",
+                status="approved",
+                txid=txid,
+                amount_usd=amount_usd,
+            )
+            session.add(deposit)
+            await session.commit()
+            await session.refresh(wallet)
+
+        await verifying_msg.edit_text(
+            text=t(
+                "deposit_binance_success",
+                lang,
+                amount=f"{amount_usd:.2f}",
+                balance=f"{wallet.balance:.2f}",
+            ),
+            parse_mode="Markdown",
+            reply_markup=reply_main_menu_kb(lang),
+        )
         await state.clear()
         return
 
-    if not result["valid"]:
+    # Case 2: If API key is not configured or transaction not automatically retrieved,
+    # ask for the amount so it is queued in Dashboard for admin confirmation
+    if result.get("needs_manual"):
+        await state.update_data(txid=txid)
+        await state.set_state(BinanceDeposit.waiting_amount)
         await verifying_msg.edit_text(
-            t("deposit_binance_not_found", lang), parse_mode="Markdown"
-        )
-        # Keep state so user can retry with correct TxID
-        return
-
-    if not result["confirmed"]:
-        await verifying_msg.edit_text(
-            t("deposit_binance_not_found", lang), parse_mode="Markdown"
+            t("deposit_enter_amount_usd", lang),
+            parse_mode="Markdown",
         )
         return
 
-    amount_usd: float = result["amount_usdt"]
+    # Case 3: Invalid / not found
+    await verifying_msg.edit_text(
+        t("deposit_binance_not_found", lang), parse_mode="Markdown"
+    )
+
+
+@router.message(BinanceDeposit.waiting_amount)
+async def fsm_binance_amount(message: Message, state: FSMContext) -> None:
+    data = await state.get_data()
+    lang: str = data.get("lang", "ar")
+    txid: str = data.get("txid", "")
+
+    raw_text = message.text.strip().replace("$", "") if message.text else ""
+    try:
+        amount_usd = float(raw_text)
+        if amount_usd <= 0:
+            raise ValueError
+    except ValueError:
+        await message.answer(t("deposit_enter_amount_usd", lang))
+        return
 
     async with AsyncSessionLocal() as session:
-        # Final duplicate guard inside transaction
-        dup = await session.execute(select(Deposit).where(Deposit.txid == txid))
-        if dup.scalar_one_or_none():
-            await verifying_msg.edit_text(
-                t("deposit_txid_used", lang), parse_mode="Markdown"
-            )
-            await state.clear()
-            return
-
-        user_result = await session.execute(
-            select(User).where(User.telegram_id == message.from_user.id)
-        )
-        user = user_result.scalar_one_or_none()
+        user_res = await session.execute(select(User).where(User.telegram_id == message.from_user.id))
+        user = user_res.scalar_one_or_none()
         if not user:
             await state.clear()
             return
 
-        wallet_result = await session.execute(
-            select(Wallet).where(Wallet.user_id == user.id)
-        )
-        wallet = wallet_result.scalar_one_or_none()
-        if not wallet:
-            wallet = Wallet(user_id=user.id, balance=0.0, total_deposited=0.0, total_spent=0.0)
-            session.add(wallet)
-
-        wallet.balance = round(wallet.balance + amount_usd, 6)
-        wallet.total_deposited = round(wallet.total_deposited + amount_usd, 6)
-
         deposit = Deposit(
             user_id=user.id,
             method="binance",
-            status="approved",
+            status="pending",
             txid=txid,
             amount_usd=amount_usd,
         )
         session.add(deposit)
         await session.commit()
-        await session.refresh(wallet)
 
-    await verifying_msg.edit_text(
-        text=t(
-            "deposit_binance_success",
-            lang,
-            amount=f"{amount_usd:.2f}",
-            balance=f"{wallet.balance:.2f}",
-        ),
+    await message.answer(
+        t("deposit_binance_pending", lang, txid=txid, amount=f"{amount_usd:.2f}"),
         parse_mode="Markdown",
-        reply_markup=main_menu_kb(lang),
+        reply_markup=reply_main_menu_kb(lang),
     )
     await state.clear()
 

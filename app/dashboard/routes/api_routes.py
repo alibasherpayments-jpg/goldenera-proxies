@@ -41,6 +41,9 @@ class SettingsUpdate(BaseModel):
     markup_percent: Optional[float] = None
     usd_to_egp_rate: Optional[float] = None
     vodafone_cash_number: Optional[str] = None
+    binance_id: Optional[str] = None
+    binance_api_key: Optional[str] = None
+    binance_secret_key: Optional[str] = None
 
 
 class BroadcastBody(BaseModel):
@@ -577,6 +580,9 @@ async def get_settings(_admin=Depends(get_current_admin)):
         "markup_percent": float(rows.get("markup_percent", settings.DEFAULT_MARKUP_PERCENT)),
         "usd_to_egp_rate": float(rows.get("usd_to_egp_rate", settings.USD_TO_EGP_RATE)),
         "vodafone_cash_number": rows.get("vodafone_cash_number", settings.VODAFONE_CASH_NUMBER),
+        "binance_id": rows.get("binance_id", getattr(settings, "BINANCE_ID", "538860756") or "538860756"),
+        "binance_api_key": rows.get("binance_api_key", settings.BINANCE_API_KEY),
+        "has_binance_secret": bool(rows.get("binance_secret_key") or settings.BINANCE_SECRET_KEY),
     }
 
 
@@ -589,6 +595,12 @@ async def update_settings(body: SettingsUpdate, _admin=Depends(get_current_admin
         updates["usd_to_egp_rate"] = str(body.usd_to_egp_rate)
     if body.vodafone_cash_number is not None:
         updates["vodafone_cash_number"] = body.vodafone_cash_number
+    if body.binance_id is not None:
+        updates["binance_id"] = body.binance_id.strip()
+    if body.binance_api_key is not None:
+        updates["binance_api_key"] = body.binance_api_key.strip()
+    if body.binance_secret_key is not None and body.binance_secret_key.strip() and not body.binance_secret_key.startswith("••"):
+        updates["binance_secret_key"] = body.binance_secret_key.strip()
 
     async with AsyncSessionLocal() as db:
         for key, value in updates.items():

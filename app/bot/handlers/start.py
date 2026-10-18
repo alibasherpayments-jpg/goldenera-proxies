@@ -400,7 +400,7 @@ async def handle_reply_wallet(message: Message) -> None:
                 f"📈 *إجمالي المشحون:* `${deposited}`\n"
                 f"🛒 *إجمالي المشتريات:* `${spent}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
-                f"💡 *شحن الرصيد:* يمكنك شحن رصيدك فوراً وبأمان عبر Binance USDT TRC-20 أو محفظة فودافون كاش."
+                f"💡 *شحن الرصيد:* يمكنك شحن رصيدك فوراً وبأمان عبر Binance Pay (ID: `538860756`) أو محفظة فودافون كاش."
             )
         else:
             text = (
@@ -411,7 +411,7 @@ async def handle_reply_wallet(message: Message) -> None:
                 f"📈 *Total Deposited:* `${deposited}`\n"
                 f"🛒 *Total Spent:* `${spent}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
-                f"💡 *Top-up:* Instant deposits supported via Binance USDT TRC-20 and Vodafone Cash."
+                f"💡 *Top-up:* Instant deposits supported via Binance Pay (ID: `538860756`) and Vodafone Cash."
             )
 
         kb = InlineKeyboardMarkup(

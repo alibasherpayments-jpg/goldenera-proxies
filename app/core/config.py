@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     DASHBOARD_PASSWORD: str = "changeme"
 
     # ── Binance
+    BINANCE_ID: str = "538860756"
     BINANCE_API_KEY: str = ""
     BINANCE_SECRET_KEY: str = ""
     BINANCE_WALLET_ADDRESS: str = ""
