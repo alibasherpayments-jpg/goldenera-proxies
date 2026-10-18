@@ -791,7 +791,6 @@ _translations: Dict[str, Dict[str, str]] = {
         "ar": (
             "💰 **طلب إيداع جديد — Vodafone Cash**\n\n"
             "👤 العميل: [{name}](tg://user?id={user_id}) — `{user_id}`\n"
-            "📱 رقم المحوّل: `{phone}`\n"
             "🔢 Transaction ID: `{txid}`\n"
             "💵 المبلغ: `{amount_egp} ج.م` = `{amount_usd}$`\n"
             "🕐 الوقت: `{time}`\n\n"
@@ -800,7 +799,6 @@ _translations: Dict[str, Dict[str, str]] = {
         "en": (
             "💰 **New Deposit Request — Vodafone Cash**\n\n"
             "👤 User: [{name}](tg://user?id={user_id}) — `{user_id}`\n"
-            "📱 Sender Number: `{phone}`\n"
             "🔢 Transaction ID: `{txid}`\n"
             "💵 Amount: `{amount_egp} EGP` = `{amount_usd}$`\n"
             "🕐 Time: `{time}`\n\n"

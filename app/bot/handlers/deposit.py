@@ -357,7 +357,6 @@ async def fsm_vf_amount(message: Message, state: FSMContext, bot: Bot) -> None:
         "ar",
         name=message.from_user.full_name,
         user_id=message.from_user.id,
-        phone=phone,
         txid=txid,
         amount_egp=f"{amount_egp:.2f}",
         amount_usd=f"{amount_usd:.2f}",
