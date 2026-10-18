@@ -17,10 +17,12 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     telegram_id = Column(BigInteger, unique=True, nullable=False, index=True)
+    account_id = Column(String(32), unique=True, nullable=True, index=True)
     username = Column(String(128), nullable=True)
     first_name = Column(String(128), nullable=True)
     last_name = Column(String(128), nullable=True)
     language = Column(String(5), default="ar", nullable=False)
+    has_selected_language = Column(Boolean, default=False, nullable=False)
     is_banned = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

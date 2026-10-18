@@ -112,10 +112,12 @@ async def list_users(
     async with AsyncSessionLocal() as db:
         q = select(User).options(selectinload(User.wallet)).order_by(desc(User.created_at))
         if search:
+            search_clean = search.strip()
             q = q.where(
-                (User.username.ilike(f"%{search}%"))
-                | (User.first_name.ilike(f"%{search}%"))
-                | (User.telegram_id == int(search) if search.isdigit() else False)
+                (User.username.ilike(f"%{search_clean}%"))
+                | (User.first_name.ilike(f"%{search_clean}%"))
+                | (User.account_id.ilike(f"%{search_clean}%"))
+                | (User.telegram_id == int(search_clean) if search_clean.isdigit() else False)
             )
         total = (await db.execute(select(func.count()).select_from(q.subquery()))).scalar_one()
         users_result = await db.execute(q.offset(offset).limit(per_page))
@@ -128,6 +130,7 @@ async def list_users(
             "users": [
                 {
                     "id": u.id,
+                    "account_id": u.account_id or str(u.telegram_id),
                     "telegram_id": u.telegram_id,
                     "username": u.username,
                     "first_name": u.first_name,
@@ -135,9 +138,10 @@ async def list_users(
                     "language": u.language,
                     "is_banned": u.is_banned,
                     "is_admin": u.is_admin,
-                    "balance": round(u.wallet.balance if u.wallet else 0.0, 4),
-                    "total_deposited": round(u.wallet.total_deposited if u.wallet else 0.0, 4),
-                    "total_spent": round(u.wallet.total_spent if u.wallet else 0.0, 4),
+                    "balance": round(u.wallet.balance if u.wallet else 0.0, 2),
+                    "points": int(round((u.wallet.balance if u.wallet else 0.0) * 100, 0)),
+                    "total_deposited": round(u.wallet.total_deposited if u.wallet else 0.0, 2),
+                    "total_spent": round(u.wallet.total_spent if u.wallet else 0.0, 2),
                     "created_at": u.created_at.isoformat() if u.created_at else None,
                 }
                 for u in users
@@ -199,6 +203,124 @@ async def get_user_detail(telegram_id: int, _admin=Depends(get_current_admin)):
                 }
                 for d in user.deposits
             ],
+        }
+
+
+@router.get("/admin/api/users/{telegram_id}/transactions")
+async def get_user_transactions(telegram_id: int, _admin=Depends(get_current_admin)):
+    async with AsyncSessionLocal() as db:
+        user_res = await db.execute(select(User).where(User.telegram_id == telegram_id))
+        user = user_res.scalar_one_or_none()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        deposits_res = await db.execute(
+            select(Deposit).where(Deposit.user_id == user.id).order_by(desc(Deposit.created_at))
+        )
+        deposits = deposits_res.scalars().all()
+
+        orders_res = await db.execute(
+            select(Order).where(Order.user_id == user.id).order_by(desc(Order.created_at))
+        )
+        orders = orders_res.scalars().all()
+
+        txs = []
+        for d in deposits:
+            txs.append({
+                "type": "deposit",
+                "method": d.method,
+                "amount": d.amount_usd,
+                "points": int(round(d.amount_usd * 100)),
+                "status": d.status,
+                "txid": d.txid,
+                "details": f"Deposit via {d.method.upper()}",
+                "date": d.created_at.isoformat() if d.created_at else None,
+            })
+
+        for o in orders:
+            txs.append({
+                "type": "order",
+                "method": o.request_type,
+                "amount": -o.amount_deducted,
+                "points": -int(round(o.amount_deducted * 100)),
+                "status": o.status,
+                "txid": o.magnum_request_id or "—",
+                "details": f"Proxy {o.request_type.title()} ({o.product_code})",
+                "date": o.created_at.isoformat() if o.created_at else None,
+            })
+
+        txs.sort(key=lambda x: x["date"] or "", reverse=True)
+        return {
+            "account_id": user.account_id or str(user.telegram_id),
+            "telegram_id": user.telegram_id,
+            "username": user.username,
+            "transactions": txs,
+        }
+
+
+@router.get("/admin/api/transactions")
+async def list_all_transactions(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=200),
+    _admin=Depends(get_current_admin),
+):
+    async with AsyncSessionLocal() as db:
+        deposits_res = await db.execute(
+            select(Deposit, User)
+            .join(User, User.id == Deposit.user_id)
+            .order_by(desc(Deposit.created_at))
+            .limit(100)
+        )
+        orders_res = await db.execute(
+            select(Order, User)
+            .join(User, User.id == Order.user_id)
+            .order_by(desc(Order.created_at))
+            .limit(100)
+        )
+
+        all_txs = []
+        for d, u in deposits_res.all():
+            all_txs.append({
+                "id": f"DEP-{d.id}",
+                "user_id": u.id,
+                "account_id": u.account_id or str(u.telegram_id),
+                "telegram_id": u.telegram_id,
+                "username": u.username or u.first_name or "—",
+                "type": "deposit",
+                "amount": d.amount_usd,
+                "points": int(round(d.amount_usd * 100)),
+                "status": d.status,
+                "method": d.method,
+                "reference": d.txid,
+                "date": d.created_at.isoformat() if d.created_at else None,
+            })
+
+        for o, u in orders_res.all():
+            all_txs.append({
+                "id": f"ORD-{o.id}",
+                "user_id": u.id,
+                "account_id": u.account_id or str(u.telegram_id),
+                "telegram_id": u.telegram_id,
+                "username": u.username or u.first_name or "—",
+                "type": "order",
+                "amount": -o.amount_deducted,
+                "points": -int(round(o.amount_deducted * 100)),
+                "status": o.status,
+                "method": o.request_type,
+                "reference": o.magnum_request_id or o.product_code,
+                "date": o.created_at.isoformat() if o.created_at else None,
+            })
+
+        all_txs.sort(key=lambda x: x["date"] or "", reverse=True)
+        total = len(all_txs)
+        offset = (page - 1) * per_page
+        paginated = all_txs[offset : offset + per_page]
+
+        return {
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "transactions": paginated,
         }
 
 

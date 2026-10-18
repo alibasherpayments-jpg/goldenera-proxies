@@ -6,6 +6,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from app.bot.i18n import t, LANGUAGES
 
 
+SUPPORT_URL = "https://t.me/BumBoyAliBasher"
+
+
 def main_menu_kb(lang: str) -> InlineKeyboardMarkup:
     """Main menu with 6 options arranged in a 2-column grid."""
     return InlineKeyboardMarkup(
@@ -19,8 +22,24 @@ def main_menu_kb(lang: str) -> InlineKeyboardMarkup:
                 InlineKeyboardButton(text=t("menu_wallet", lang), callback_data="menu:wallet"),
             ],
             [
-                InlineKeyboardButton(text=t("menu_support", lang), callback_data="menu:support"),
+                InlineKeyboardButton(text=t("menu_support", lang), url=SUPPORT_URL),
                 InlineKeyboardButton(text=t("menu_language", lang), callback_data="menu:language"),
+            ],
+        ]
+    )
+
+
+def initial_language_kb() -> InlineKeyboardMarkup:
+    """Language chooser presented when the user starts the bot for the first time."""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="🇸🇦 العربية", callback_data="lang_init:ar"),
+                InlineKeyboardButton(text="🇬🇧 English", callback_data="lang_init:en"),
+            ],
+            [
+                InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang_init:ru"),
+                InlineKeyboardButton(text="🇮🇳 हिन्दी", callback_data="lang_init:hi"),
             ],
         ]
     )
@@ -35,6 +54,23 @@ def language_kb() -> InlineKeyboardMarkup:
     # Two buttons per row
     rows = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def support_kb(lang: str) -> InlineKeyboardMarkup:
+    """Support contact button + Back button."""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="💬 " + t("menu_support", lang),
+                    url=SUPPORT_URL,
+                )
+            ],
+            [
+                InlineKeyboardButton(text=t("btn_back", lang), callback_data="menu:main")
+            ],
+        ]
+    )
 
 
 def back_kb(lang: str) -> InlineKeyboardMarkup:

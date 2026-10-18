@@ -37,7 +37,28 @@ async def get_db():
 async def create_tables():
     import app.models  # noqa: F401
     from sqlalchemy import text
+    import logging
+    log = logging.getLogger(__name__)
+
     async with engine.begin() as conn:
         if "postgresql" in settings.DATABASE_URL:
             await conn.execute(text("CREATE SCHEMA IF NOT EXISTS goldenera;"))
         await conn.run_sync(Base.metadata.create_all)
+
+        # Safe schema updates for existing tables
+        try:
+            if "postgresql" in settings.DATABASE_URL:
+                await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS account_id VARCHAR(32);"))
+                await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS has_selected_language BOOLEAN DEFAULT FALSE;"))
+                await conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS uq_users_account_id ON users(account_id);"))
+            else:
+                try:
+                    await conn.execute(text("ALTER TABLE users ADD COLUMN account_id VARCHAR(32);"))
+                except Exception:
+                    pass
+                try:
+                    await conn.execute(text("ALTER TABLE users ADD COLUMN has_selected_language BOOLEAN DEFAULT 0;"))
+                except Exception:
+                    pass
+        except Exception as e:
+            log.warning(f"Schema migration warning: {e}")

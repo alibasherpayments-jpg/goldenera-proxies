@@ -50,7 +50,8 @@ DEPOSITS_HTML = """<!DOCTYPE html>
     <div class="sidebar-header"><div class="logo-box">G</div><div class="logo-text">GoldenEra 5G</div></div>
     <ul class="nav-list">
       <li class="nav-item"><a href="/admin/dashboard" class="nav-link">📊 Dashboard</a></li>
-      <li class="nav-item"><a href="/admin/users" class="nav-link">👥 Users & Wallets</a></li>
+      <li class="nav-item"><a href="/admin/users" class="nav-link">👥 Users & Accounts</a></li>
+      <li class="nav-item"><a href="/admin/transactions" class="nav-link">📜 Transactions History</a></li>
       <li class="nav-item"><a href="/admin/deposits" class="nav-link active">💳 Deposits</a></li>
       <li class="nav-item"><a href="/admin/proxies" class="nav-link">🔌 Active Proxies</a></li>
       <li class="nav-item"><a href="/admin/settings" class="nav-link">⚙️ Settings & Pricing</a></li>

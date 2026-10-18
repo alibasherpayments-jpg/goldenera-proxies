@@ -8,6 +8,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from app.dashboard.auth import get_current_admin
 from app.dashboard.static.dashboard_html import DASHBOARD_HTML
 from app.dashboard.static.users_html import USERS_HTML
+from app.dashboard.static.transactions_html import TRANSACTIONS_HTML
 from app.dashboard.static.deposits_html import DEPOSITS_HTML
 from app.dashboard.static.proxies_html import PROXIES_HTML
 from app.dashboard.static.settings_html import SETTINGS_HTML
@@ -34,6 +35,11 @@ async def dashboard_page(admin=Depends(get_current_admin)):
 @router.get("/admin/users", response_class=HTMLResponse)
 async def users_page(admin=Depends(get_current_admin)):
     return HTMLResponse(content=USERS_HTML.replace("{{ADMIN_USER}}", admin.get("sub", "admin")))
+
+
+@router.get("/admin/transactions", response_class=HTMLResponse)
+async def transactions_page(admin=Depends(get_current_admin)):
+    return HTMLResponse(content=TRANSACTIONS_HTML.replace("{{ADMIN_USER}}", admin.get("sub", "admin")))
 
 
 @router.get("/admin/deposits", response_class=HTMLResponse)
