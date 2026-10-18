@@ -99,7 +99,6 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
     lang = user.language or "ar"
     acc_id = user.account_id or str(user.telegram_id)
     balance_usd = f"{wallet.balance:.2f}"
-    points = f"{(wallet.balance * 100):.0f}"
 
     if lang == "ar":
         return (
@@ -107,7 +106,6 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *معرّف الحساب:* `{acc_id}`\n"
             f"💎 *الرصيد المتاح:* `${balance_usd}`\n"
-            f"🎯 *رصيد النقاط:* `{points} نقطة`\n"
             f"🌐 *اللغة الحالية:* 🇸🇦 العربية\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🚀 *أقوى وأسرع بروكسيات 5G وسكنية نقية 100%*\n"
@@ -122,7 +120,6 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *ID аккаунта:* `{acc_id}`\n"
             f"💎 *Баланс:* `${balance_usd}`\n"
-            f"🎯 *Баллы:* `{points} pts`\n"
             f"🌐 *Язык:* 🇷🇺 Русский\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🚀 *Быстрые мобильные 5G и резидентские прокси*\n"
@@ -137,7 +134,6 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *अकाउंट आईडी:* `{acc_id}`\n"
             f"💎 *बैलेंस:* `${balance_usd}`\n"
-            f"🎯 *अंक (Points):* `{points} pts`\n"
             f"🌐 *भाषा:* 🇮🇳 हिन्दी\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🚀 *हाई-स्पीड 5G और रेसिडेंशियल प्रॉक्सी*\n"
@@ -152,7 +148,6 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *Account ID:* `{acc_id}`\n"
             f"💎 *Balance:* `${balance_usd}`\n"
-            f"🎯 *Points:* `{points} Points`\n"
             f"🌐 *Language:* 🇬🇧 English\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🚀 *Fastest 5G Mobile & Residential Proxies*\n"
@@ -393,7 +388,6 @@ async def handle_reply_wallet(message: Message) -> None:
         lang = user.language or "ar"
         acc_id = user.account_id or str(user.telegram_id)
         balance_usd = f"{wallet.balance:.2f}"
-        points = f"{(wallet.balance * 100):.0f}"
         deposited = f"{wallet.total_deposited:.2f}"
         spent = f"{wallet.total_spent:.2f}"
 
@@ -403,11 +397,10 @@ async def handle_reply_wallet(message: Message) -> None:
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🆔 *معرّف الحساب (ID):* `{acc_id}`\n"
                 f"💎 *الرصيد المتاح:* `${balance_usd}`\n"
-                f"🎯 *رصيد النقاط:* `{points} نقطة`\n"
                 f"📈 *إجمالي المشحون:* `${deposited}`\n"
                 f"🛒 *إجمالي المشتريات:* `${spent}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
-                f"💡 *ملاحظة:* كل 1 دولار = 100 نقطة. يمكنك شحن الرصيد فوراً عبر Binance USDT TRC20 أو فودافون كاش."
+                f"💡 *شحن الرصيد:* يمكنك شحن رصيدك فوراً وبأمان عبر Binance USDT TRC-20 أو محفظة فودافون كاش."
             )
         else:
             text = (
@@ -415,11 +408,10 @@ async def handle_reply_wallet(message: Message) -> None:
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🆔 *Account ID:* `{acc_id}`\n"
                 f"💎 *Available Balance:* `${balance_usd}`\n"
-                f"🎯 *Points Balance:* `{points} Points`\n"
                 f"📈 *Total Deposited:* `${deposited}`\n"
                 f"🛒 *Total Spent:* `${spent}`\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
-                f"💡 *Note:* $1.00 USD = 100 Points. You can top up instantly via Binance USDT or Vodafone Cash."
+                f"💡 *Top-up:* Instant deposits supported via Binance USDT TRC-20 and Vodafone Cash."
             )
 
         kb = InlineKeyboardMarkup(

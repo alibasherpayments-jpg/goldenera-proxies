@@ -43,7 +43,6 @@ DEPOSITS_HTML = """<!DOCTYPE html>
     tr:hover td { background: #18181b; }
     
     .account-id-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 600; color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; }
-    .points-badge { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
     .badge-pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
     .badge-approved { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
@@ -98,7 +97,6 @@ DEPOSITS_HTML = """<!DOCTYPE html>
               <th>Method</th>
               <th>Sender Phone / TxID</th>
               <th>Amount USD</th>
-              <th>Points</th>
               <th>Local (EGP)</th>
               <th>Status</th>
               <th>Date</th>
@@ -106,7 +104,7 @@ DEPOSITS_HTML = """<!DOCTYPE html>
             </tr>
           </thead>
           <tbody id="deposits-body">
-            <tr><td colspan="11" style="text-align: center; color: #71717a; padding: 2rem;">Loading deposits ledger...</td></tr>
+            <tr><td colspan="10" style="text-align: center; color: #71717a; padding: 2rem;">Loading deposits ledger...</td></tr>
           </tbody>
         </table>
       </div>
@@ -132,7 +130,7 @@ DEPOSITS_HTML = """<!DOCTYPE html>
     function renderDeposits(deposits) {
       const tbody = document.getElementById('deposits-body');
       if (!deposits || deposits.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #71717a; padding: 2rem;">No deposits found matching criteria.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #71717a; padding: 2rem;">No deposits found matching criteria.</td></tr>';
         return;
       }
       tbody.innerHTML = deposits.map(d => {
@@ -140,8 +138,6 @@ DEPOSITS_HTML = """<!DOCTYPE html>
         const txDisplay = isTxHash 
           ? `<a href="https://tronscan.org/#/transaction/${d.txid}" target="_blank" style="color: #38bdf8; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">${d.txid.slice(0, 10)}...${d.txid.slice(-6)} ↗</a>`
           : `<code style="font-family: 'JetBrains Mono', monospace; color: #a1a1aa; font-size: 0.8rem;">${d.sender_phone || d.txid || '—'}</code>`;
-
-        const points = Math.round((d.amount_usd || 0) * 100);
 
         return `
           <tr>
@@ -151,7 +147,6 @@ DEPOSITS_HTML = """<!DOCTYPE html>
             <td><span style="text-transform: uppercase; font-size: 0.75rem; font-weight: 700; color: #38bdf8;">${d.method}</span></td>
             <td>${txDisplay}</td>
             <td style="font-weight: 700; color: #10b981; font-family: monospace;">$${(d.amount_usd || 0).toFixed(2)}</td>
-            <td><span class="points-badge">+${points} pts</span></td>
             <td style="color: #71717a; font-family: monospace;">${d.amount_local ? d.amount_local.toFixed(2) + ' EGP' : '—'}</td>
             <td><span class="badge badge-${d.status}">${d.status}</span></td>
             <td style="color: #71717a; font-size: 0.8rem;">${d.created_at ? new Date(d.created_at).toLocaleString() : '—'}</td>

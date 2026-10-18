@@ -184,16 +184,6 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       align-items: center;
       gap: 4px;
     }
-    .points-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      color: #10b981;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-    }
     .badge {
       display: inline-block;
       padding: 2px 8px;
@@ -309,13 +299,12 @@ DASHBOARD_HTML = """<!DOCTYPE html>
               <th>Customer</th>
               <th>Product Code</th>
               <th>Status</th>
-              <th>Amount</th>
-              <th>Points</th>
+              <th>Amount (USD)</th>
               <th>Timestamp</th>
             </tr>
           </thead>
           <tbody id="recent-orders-body">
-            <tr><td colspan="8" style="text-align: center; color: #71717a; padding: 2rem;">Loading orders...</td></tr>
+            <tr><td colspan="7" style="text-align: center; color: #71717a; padding: 2rem;">Loading orders...</td></tr>
           </tbody>
         </table>
       </div>
@@ -351,13 +340,12 @@ DASHBOARD_HTML = """<!DOCTYPE html>
               <td><strong>${o.username ? '@' + o.username : (o.telegram_id || '—')}</strong></td>
               <td style="font-family: 'JetBrains Mono', monospace; color: #38bdf8;">${o.product_code}</td>
               <td><span class="badge badge-${o.status}">${o.status}</span></td>
-              <td style="font-weight: 700; color: #fafafa; font-family: monospace;">$${(o.amount || 0).toFixed(2)}</td>
-              <td><span class="points-badge">${o.points || 0} pts</span></td>
+              <td style="font-weight: 700; color: #10b981; font-family: monospace;">$${(o.amount || 0).toFixed(2)}</td>
               <td style="color: #71717a; font-size: 0.8rem;">${o.created_at ? new Date(o.created_at).toLocaleString() : '—'}</td>
             </tr>
           `).join('');
         } else {
-          ordBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #71717a; padding: 2rem;">No orders recorded yet.</td></tr>';
+          ordBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #71717a; padding: 2rem;">No orders recorded yet.</td></tr>';
         }
       } catch (e) {
         console.error(e);

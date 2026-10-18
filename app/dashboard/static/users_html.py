@@ -36,7 +36,6 @@ USERS_HTML = """<!DOCTYPE html>
     td { padding: 0.85rem 1.25rem; border-bottom: 1px solid #1f1f23; }
     tr:hover td { background: #18181b; }
     .account-id-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600; color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); padding: 3px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; }
-    .points-badge { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 2px 7px; border-radius: 4px; font-size: 0.8rem; }
     .btn-action { padding: 5px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: 1px solid #3f3f46; background: #18181b; color: #e4e4e7; transition: all 0.15s; }
     .btn-action:hover { border-color: #10b981; color: #10b981; background: #27272a; }
     .btn-history { border-color: #3b82f6; color: #93c5fd; }
@@ -80,7 +79,7 @@ USERS_HTML = """<!DOCTYPE html>
         <div class="card-header">
           <div>
             <div style="font-weight: 600; font-size: 1rem;">Customer Accounts</div>
-            <div style="color: #71717a; font-size: 0.78rem;">Track customer random numeric IDs, points balance, and transactions history.</div>
+            <div style="color: #71717a; font-size: 0.78rem;">Track customer random numeric IDs, wallet balance, and transactions history.</div>
           </div>
           <input type="text" id="search-box" class="search-input" placeholder="🔍 Search by Account ID, Telegram ID, or Username..." oninput="filterUsers()">
         </div>
@@ -91,7 +90,6 @@ USERS_HTML = """<!DOCTYPE html>
               <th>Telegram ID</th>
               <th>Username</th>
               <th>Language</th>
-              <th>Points</th>
               <th>Balance (USD)</th>
               <th>Total Spent</th>
               <th>Joined Date</th>
@@ -99,7 +97,7 @@ USERS_HTML = """<!DOCTYPE html>
             </tr>
           </thead>
           <tbody id="users-body">
-            <tr><td colspan="9" style="text-align: center; color: #71717a; padding: 2rem;">Loading users...</td></tr>
+            <tr><td colspan="8" style="text-align: center; color: #71717a; padding: 2rem;">Loading users...</td></tr>
           </tbody>
         </table>
       </div>
@@ -139,7 +137,7 @@ USERS_HTML = """<!DOCTYPE html>
     function renderUsers(users) {
       const tbody = document.getElementById('users-body');
       if (!users || users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #71717a; padding: 2rem;">No users found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #71717a; padding: 2rem;">No users found.</td></tr>';
         return;
       }
       tbody.innerHTML = users.map(u => `
@@ -148,7 +146,6 @@ USERS_HTML = """<!DOCTYPE html>
           <td style="font-family: 'JetBrains Mono', monospace; color: #a1a1aa;">${u.telegram_id}</td>
           <td><strong>${u.username ? '@' + u.username : (u.first_name || '—')}</strong></td>
           <td><span style="text-transform: uppercase; font-size: 0.75rem; font-weight: 600; color: #10b981;">${u.language || 'ar'}</span></td>
-          <td><span class="points-badge">${u.points || 0} pts</span></td>
           <td style="font-weight: 700; color: #10b981; font-family: monospace;">$${(u.balance || 0).toFixed(2)}</td>
           <td style="color: #71717a; font-family: monospace;">$${(u.total_spent || 0).toFixed(2)}</td>
           <td style="color: #71717a; font-size: 0.8rem;">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
@@ -172,7 +169,7 @@ USERS_HTML = """<!DOCTYPE html>
     }
 
     async function adjustBalance(tgId) {
-      const amountStr = prompt('Enter amount to add (+) or deduct (-) in USD:\\n(Note: Every $1.00 = 100 Points)');
+      const amountStr = prompt('Enter amount to add (+) or deduct (-) in USD:');
       if (!amountStr) return;
       const amount = parseFloat(amountStr);
       if (isNaN(amount)) return alert('Invalid amount');
@@ -184,7 +181,7 @@ USERS_HTML = """<!DOCTYPE html>
           body: JSON.stringify({ amount: amount, note: 'Admin manual adjustment' })
         });
         if (res.ok) {
-          alert('Balance and points updated successfully');
+          alert('User balance updated successfully');
           loadUsers();
         } else {
           alert('Failed to update balance');
@@ -217,7 +214,6 @@ USERS_HTML = """<!DOCTYPE html>
           const isPos = t.amount >= 0;
           const amtColor = isPos ? 'tx-pos' : 'tx-neg';
           const sign = isPos ? '+' : '';
-          const ptsSign = t.points >= 0 ? '+' : '';
           const badgeBg = t.status === 'approved' || t.status === 'succeeded' ? '#10b981' : (t.status === 'pending' || t.status === 'queued' ? '#f59e0b' : '#ef4444');
 
           return `
@@ -230,7 +226,7 @@ USERS_HTML = """<!DOCTYPE html>
                 </div>
               </div>
               <div style="text-align: right;">
-                <div class="${amtColor}">${sign}$${Math.abs(t.amount).toFixed(2)} <span style="font-size: 0.75rem; opacity: 0.85;">(${ptsSign}${t.points} pts)</span></div>
+                <div class="${amtColor}">${sign}$${Math.abs(t.amount).toFixed(2)}</div>
                 <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: ${badgeBg};">${t.status}</span>
               </div>
             </div>

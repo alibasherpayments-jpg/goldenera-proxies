@@ -34,10 +34,10 @@ REPLY_MENU_TEXTS = {
         "hi": "💳 फंड जमा करें",
     },
     "wallet": {
-        "ar": "💼 المحفظة والنقاط",
-        "en": "💼 Wallet & Points",
-        "ru": "💼 Кошелек и баллы",
-        "hi": "💼 वॉलेट और अंक",
+        "ar": "💼 المحفظة والحساب",
+        "en": "💼 My Wallet",
+        "ru": "💼 Мой кошелек",
+        "hi": "💼 मेरा वॉलेट",
     },
     "support": {
         "ar": "💬 الدعم الفني",
@@ -56,7 +56,7 @@ REPLY_MENU_TEXTS = {
 ALL_BUY_TEXTS = set(REPLY_MENU_TEXTS["buy"].values()) | {"🚀 Buy 5G Proxies", "🚀 شراء بروكسي", "شراء بروكسي", "Buy 5G Proxies"}
 ALL_MY_PROXIES_TEXTS = set(REPLY_MENU_TEXTS["my_proxies"].values()) | {"🔌 My Active Proxies", "🔌 بروكسياتي", "بروكسياتي", "My Active Proxies"}
 ALL_DEPOSIT_TEXTS = set(REPLY_MENU_TEXTS["deposit"].values()) | {"💳 Deposit Funds", "💳 شحن الرصيد", "شحن الرصيد", "Deposit Funds"}
-ALL_WALLET_TEXTS = set(REPLY_MENU_TEXTS["wallet"].values()) | {"💼 Wallet & Points", "💼 المحفظة والنقاط", "المحفظة", "Wallet & Points"}
+ALL_WALLET_TEXTS = set(REPLY_MENU_TEXTS["wallet"].values()) | {"💼 My Wallet", "💼 المحفظة والحساب", "💼 Wallet & Points", "💼 المحفظة والنقاط", "المحفظة", "Wallet & Points", "Wallet"}
 ALL_SUPPORT_TEXTS = set(REPLY_MENU_TEXTS["support"].values()) | {"💬 Direct Support", "💬 الدعم الفني", "الدعم", "Direct Support"}
 ALL_LANG_TEXTS = set(REPLY_MENU_TEXTS["language"].values()) | {"🌐 Change Language", "🌐 تغيير اللغة", "Language", "تغيير اللغة"}
 

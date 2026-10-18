@@ -65,8 +65,8 @@ TRANSACTIONS_HTML = """<!DOCTYPE html>
       <div class="card-box">
         <div class="card-header">
           <div>
-            <div style="font-weight: 600; font-size: 1rem;">All Transactions (Deposits, Purchases & Points)</div>
-            <div style="color: #71717a; font-size: 0.78rem;">Live audit trail of all wallet deposits, proxy orders, and points deductions.</div>
+            <div style="font-weight: 600; font-size: 1rem;">All Transactions (Deposits & Purchases)</div>
+            <div style="color: #71717a; font-size: 0.78rem;">Live audit trail of all wallet deposits and proxy purchases.</div>
           </div>
           <input type="text" id="search-box" class="search-input" placeholder="🔍 Search transaction by ID, user, or ref..." oninput="filterTx()">
         </div>
@@ -79,13 +79,12 @@ TRANSACTIONS_HTML = """<!DOCTYPE html>
               <th>Type</th>
               <th>Method / Item</th>
               <th>Amount (USD)</th>
-              <th>Points</th>
               <th>Status</th>
               <th>Date</th>
             </tr>
           </thead>
           <tbody id="tx-body">
-            <tr><td colspan="9" style="text-align: center; color: #71717a; padding: 2rem;">Loading transactions ledger...</td></tr>
+            <tr><td colspan="8" style="text-align: center; color: #71717a; padding: 2rem;">Loading transactions ledger...</td></tr>
           </tbody>
         </table>
       </div>
@@ -109,14 +108,13 @@ TRANSACTIONS_HTML = """<!DOCTYPE html>
     function renderTx(txs) {
       const tbody = document.getElementById('tx-body');
       if (!txs || txs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #71717a; padding: 2rem;">No transactions found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #71717a; padding: 2rem;">No transactions found.</td></tr>';
         return;
       }
       tbody.innerHTML = txs.map(t => {
         const isPos = t.amount >= 0;
         const amtColor = isPos ? 'tx-pos' : 'tx-neg';
         const sign = isPos ? '+' : '';
-        const ptsSign = t.points >= 0 ? '+' : '';
         const isApprove = t.status === 'approved' || t.status === 'succeeded';
         const isPending = t.status === 'pending' || t.status === 'queued';
         const badgeColor = isApprove ? '#10b981' : (isPending ? '#f59e0b' : '#ef4444');
@@ -130,7 +128,6 @@ TRANSACTIONS_HTML = """<!DOCTYPE html>
             <td><span style="font-weight: 600; text-transform: uppercase; font-size: 0.72rem; color: ${isPos ? '#10b981' : '#60a5fa'};">${t.type}</span></td>
             <td>${t.method.toUpperCase()}</td>
             <td class="${amtColor}">${sign}$${Math.abs(t.amount).toFixed(2)}</td>
-            <td style="font-family: monospace; font-weight: 700;">${ptsSign}${t.points} pts</td>
             <td><span class="status-badge" style="color: ${badgeColor}; background: ${badgeBg}; border: 1px solid ${badgeColor}40;">${t.status}</span></td>
             <td style="color: #71717a; font-size: 0.78rem;">${t.date ? new Date(t.date).toLocaleString() : '—'}</td>
           </tr>
