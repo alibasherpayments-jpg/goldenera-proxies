@@ -320,7 +320,7 @@ async def fsm_vf_txid(message: Message, state: FSMContext) -> None:
 
     await state.update_data(txid=txid)
     await state.set_state(DepositVF.waiting_amount)
-    await message.answer(t("deposit_vf_enter_amount", lang), parse_mode="Markdown")
+    await message.answer(t("deposit_vf_enter_amount", lang), reply_markup=back_kb(lang), parse_mode="Markdown")
 
 
 @router.message(DepositVF.waiting_amount)
@@ -329,17 +329,33 @@ async def fsm_vf_amount(message: Message, state: FSMContext, bot: Bot) -> None:
     lang: str = data.get("lang", "ar")
     txid: str = data.get("txid", "")
     rate: float = data.get("rate", settings.USD_TO_EGP_RATE)
+    if not rate or rate <= 0:
+        rate = 50.0
 
-    raw = message.text.strip().replace("$", "") if message.text else ""
+    raw = (
+        message.text.strip()
+        .replace("EGP", "")
+        .replace("egp", "")
+        .replace("ج.م", "")
+        .replace("جنيه", "")
+        .replace("$", "")
+        .strip()
+        if message.text
+        else ""
+    )
     try:
-        amount_usd = float(raw)
-        if math.isnan(amount_usd) or math.isinf(amount_usd) or amount_usd < 0.1 or amount_usd > 10000.0:
+        amount_egp = float(raw)
+        if math.isnan(amount_egp) or math.isinf(amount_egp) or amount_egp < 1.0 or amount_egp > 500000.0:
             raise ValueError
     except ValueError:
-        await message.answer(t("deposit_vf_enter_amount", lang))
+        await message.answer(
+            t("deposit_vf_enter_amount", lang),
+            reply_markup=back_kb(lang),
+            parse_mode="Markdown",
+        )
         return
 
-    amount_egp = round(amount_usd * rate, 2)
+    amount_usd = round(amount_egp / rate, 2)
     points = int(round(amount_usd * 100))
 
     async with AsyncSessionLocal() as session:
