@@ -44,6 +44,11 @@ dp.include_router(catalog.router)
 # ── FastAPI Lifespan ───────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    try:
+        await create_tables()
+    except Exception as e:
+        logger.warning(f"create_tables on lifespan startup: {e}")
+
     # Polling only in local development
     if not settings.is_production:
         asyncio.create_task(_run_polling())
