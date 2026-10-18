@@ -298,10 +298,10 @@ _translations: Dict[str, Dict[str, str]] = {
         ),
     },
     "deposit_binance_not_found": {
-        "ar": "⏳ لم يتم العثور على العملية في حساب Binance بعد.\n\nيرجى التأكد من إدخال **رقم الطلب (Order ID)** الموضح في إيصال Binance Pay، أو انتظر دقيقة وأعد المحاولة.",
-        "en": "⏳ Transaction not found on Binance yet.\n\nPlease verify your **Order ID** from your Binance Pay receipt, or wait a minute and try again.",
-        "ru": "⏳ Транзакция пока не найдена в Binance.\n\nПожалуйста, проверьте **Order ID** в чеке Binance Pay или подождите минуту и попробуйте снова.",
-        "hi": "⏳ Binance पर लेनदेन अभी तक नहीं मिला।\n\nकृपया अपनी रसीद से **Order ID** की जाँच करें या एक मिनट प्रतीक्षा करें और पुनः प्रयास करें।",
+        "ar": "⏳ لم يتم العثور على العملية في حساب Binance بعد.\n\nيرجى التأكد من إدخال **رقم العملية أو رقم الطلب (TXID / Order ID)** الموضح في إيصال Binance Pay، أو انتظر لحظات وأعد المحاولة.",
+        "en": "⏳ Transaction not found on Binance yet.\n\nPlease verify your **TXID / Order ID** from your Binance Pay receipt, or wait a minute and try again.",
+        "ru": "⏳ Транзакция пока не найдена в Binance.\n\nПожалуйста, проверьте **TXID / Order ID** в чеке Binance Pay или подождите минуту и попробуйте снова.",
+        "hi": "⏳ Binance पर लेनदेन अभी तक नहीं मिला।\n\nकृपया अपनी रसीद से **TXID / Order ID** की जाँच करें या एक मिनट प्रतीक्षा करें और पुनः प्रयास करें।",
     },
     "deposit_vodafone_instructions": {
         "ar": (

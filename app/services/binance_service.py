@@ -66,7 +66,6 @@ async def verify_binance_pay_txid(txid: str) -> dict:
     if not api_key or not secret_key or "your_binance" in api_key:
         return {
             "valid": False,
-            "needs_manual": True,
             "reason": "no_api_keys",
             "amount_usd": 0.0,
             "confirmed": False,
@@ -99,7 +98,6 @@ async def verify_binance_pay_txid(txid: str) -> dict:
                 logger.error("Binance Pay API error %s: %s", resp.status_code, resp.text)
                 return {
                     "valid": False,
-                    "needs_manual": True,
                     "reason": f"http_{resp.status_code}",
                     "amount_usd": 0.0,
                     "confirmed": False,
@@ -109,7 +107,6 @@ async def verify_binance_pay_txid(txid: str) -> dict:
             logger.error("Failed to query Binance Pay API: %s", e)
             return {
                 "valid": False,
-                "needs_manual": True,
                 "reason": str(e),
                 "amount_usd": 0.0,
                 "confirmed": False,
@@ -147,13 +144,11 @@ async def verify_binance_pay_txid(txid: str) -> dict:
                     "confirmed": True,
                     "method": "binance_pay",
                     "order_id": clean_txid,
-                    "needs_manual": False,
                 }
 
     # Not found in last 100 pay transactions
     return {
         "valid": False,
-        "needs_manual": False,
         "reason": "not_found",
         "amount_usd": 0.0,
         "confirmed": False,
@@ -213,27 +208,12 @@ async def verify_trc20_txid(txid: str) -> dict:
 async def verify_deposit_txid(txid: str) -> dict:
     """
     Smart verification for Binance deposits:
-    1. First tries Binance Pay API lookup.
-    2. If txid is a 64-char hex string, tries TronScan TRC-20 lookup.
+    1. If txid is a 64-char hex string, tries TronScan TRC-20 lookup.
+    2. Tries Binance Pay API lookup (Order ID / Pay transaction ID).
     """
-    clean_txid = txid.strip()
-    
-    # Check Binance Pay API
-    b_res = await verify_binance_pay_txid(clean_txid)
-    if b_res.get("valid"):
-        return {
-            "valid": True,
-            "amount_usd": b_res["amount_usd"],
-            "confirmed": True,
-            "method": "binance_pay",
-            "needs_manual": False,
-        }
+    clean_txid = txid.strip().lstrip("#").strip()
 
-    # If it was identified as needing manual review (e.g. no API keys configured)
-    if b_res.get("needs_manual"):
-        return b_res
-
-    # Fallback to TronScan if hash is 64 hex characters
+    # 1. TRC-20 on TronScan if 64 hex characters
     if len(clean_txid) == 64 and all(c in "0123456789abcdefABCDEF" for c in clean_txid):
         t_res = await verify_trc20_txid(clean_txid)
         if t_res.get("valid") and t_res.get("confirmed"):
@@ -242,7 +222,21 @@ async def verify_deposit_txid(txid: str) -> dict:
                 "amount_usd": t_res["amount_usdt"],
                 "confirmed": True,
                 "method": "trc20",
-                "needs_manual": False,
             }
 
-    return {"valid": False, "needs_manual": False, "reason": "not_found", "amount_usd": 0.0, "confirmed": False}
+    # 2. Check Binance Pay API
+    b_res = await verify_binance_pay_txid(clean_txid)
+    if b_res.get("valid") and b_res.get("confirmed"):
+        return {
+            "valid": True,
+            "amount_usd": b_res["amount_usd"],
+            "confirmed": True,
+            "method": "binance_pay",
+        }
+
+    return {
+        "valid": False,
+        "amount_usd": 0.0,
+        "confirmed": False,
+        "reason": b_res.get("reason", "not_found"),
+    }

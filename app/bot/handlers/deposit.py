@@ -38,7 +38,6 @@ router = Router(name="deposit")
 
 class BinanceDeposit(StatesGroup):
     waiting_txid = State()
-    waiting_amount = State()
 
 
 class DepositVF(StatesGroup):
@@ -146,7 +145,7 @@ async def fsm_binance_txid(message: Message, state: FSMContext) -> None:
         result = await verify_deposit_txid(txid)
     except Exception as exc:
         logger.error("Verification error for txid %s: %s", txid, exc)
-        result = {"valid": False, "needs_manual": True}
+        result = {"valid": False, "confirmed": False}
 
     # Case 1: Verified automatically via Binance Pay API or TronScan
     if result.get("valid") and result.get("confirmed"):
@@ -201,58 +200,9 @@ async def fsm_binance_txid(message: Message, state: FSMContext) -> None:
         await state.clear()
         return
 
-    # Case 2: If API key is not configured or transaction not automatically retrieved,
-    # ask for the amount so it is queued in Dashboard for admin confirmation
-    if result.get("needs_manual"):
-        await state.update_data(txid=txid)
-        await state.set_state(BinanceDeposit.waiting_amount)
-        await verifying_msg.edit_text(
-            t("deposit_enter_amount_usd", lang),
-            parse_mode="Markdown",
-        )
-        return
-
-    # Case 3: Invalid / not found
+    # Case 2: Not verified / not found in transaction history (do NOT ask for amount)
     await verifying_msg.edit_text(
-        t("deposit_binance_not_found", lang), parse_mode="Markdown"
-    )
-
-
-@router.message(BinanceDeposit.waiting_amount)
-async def fsm_binance_amount(message: Message, state: FSMContext) -> None:
-    data = await state.get_data()
-    lang: str = data.get("lang", "ar")
-    txid: str = data.get("txid", "")
-
-    raw_text = message.text.strip().replace("$", "") if message.text else ""
-    try:
-        amount_usd = float(raw_text)
-        if amount_usd <= 0:
-            raise ValueError
-    except ValueError:
-        await message.answer(t("deposit_enter_amount_usd", lang))
-        return
-
-    async with AsyncSessionLocal() as session:
-        user_res = await session.execute(select(User).where(User.telegram_id == message.from_user.id))
-        user = user_res.scalar_one_or_none()
-        if not user:
-            await state.clear()
-            return
-
-        deposit = Deposit(
-            user_id=user.id,
-            method="binance",
-            status="pending",
-            txid=txid,
-            amount_usd=amount_usd,
-        )
-        session.add(deposit)
-        await session.commit()
-
-    points = int(round(amount_usd * 100))
-    await message.answer(
-        t("deposit_binance_pending", lang, txid=txid, amount=f"{amount_usd:.2f}", points=points),
+        t("deposit_binance_not_found", lang),
         parse_mode="Markdown",
         reply_markup=reply_main_menu_kb(lang),
     )
