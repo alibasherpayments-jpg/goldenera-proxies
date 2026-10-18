@@ -87,11 +87,11 @@ USERS_HTML = """<!DOCTYPE html>
         <table>
           <thead>
             <tr>
-              <th>Account ID (معرّف الحساب)</th>
+              <th>Account ID</th>
               <th>Telegram ID</th>
               <th>Username</th>
               <th>Language</th>
-              <th>Points (النقاط)</th>
+              <th>Points</th>
               <th>Balance (USD)</th>
               <th>Total Spent</th>
               <th>Joined Date</th>

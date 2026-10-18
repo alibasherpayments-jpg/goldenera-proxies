@@ -1,24 +1,35 @@
 """
-Start handler — /start, /help, main menu callbacks, initial & ongoing language selection.
+Start handler — /start, /help, language onboarding, and Reply Keyboard menu navigation.
 """
 import logging
 import random
 import time
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, desc
+from sqlalchemy.orm import selectinload
 
 from app.core.database import AsyncSessionLocal
 from app.models.user import User, Wallet
+from app.models.proxy import Proxy
 from app.bot.i18n import t, LANGUAGES
 from app.bot.keyboards.main import (
-    main_menu_kb,
+    reply_main_menu_kb,
     language_kb,
     initial_language_kb,
     support_kb,
     back_kb,
+    deposit_methods_kb,
+    proxy_card_kb,
+    SUPPORT_URL,
+    ALL_BUY_TEXTS,
+    ALL_MY_PROXIES_TEXTS,
+    ALL_DEPOSIT_TEXTS,
+    ALL_WALLET_TEXTS,
+    ALL_SUPPORT_TEXTS,
+    ALL_LANG_TEXTS,
 )
 
 logger = logging.getLogger(__name__)
@@ -63,15 +74,12 @@ async def get_or_create_user(
         session.add(user)
         await session.flush()
     else:
-        # Backfill account_id if not present
         if not user.account_id:
             user.account_id = await generate_unique_account_id(session)
-        # Keep profile fields up to date
         user.username = tg_user.username
         user.first_name = tg_user.first_name
         user.last_name = tg_user.last_name
 
-    # Ensure wallet exists
     wallet_result = await session.execute(
         select(Wallet).where(Wallet.user_id == user.id)
     )
@@ -95,18 +103,18 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
 
     if lang == "ar":
         return (
-            f"⚡️ *أهلاً بك في جولدن إيرا للبروكسيات | GOLDENERA 5G*\n"
+            f"⚡️ *أهلاً بك في جولدن إيرا | GOLDENERA 5G*\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
-            f"🆔 *معرّف الحساب (ID):* `{acc_id}`\n"
+            f"🆔 *معرّف الحساب:* `{acc_id}`\n"
             f"💎 *الرصيد المتاح:* `${balance_usd}`\n"
             f"🎯 *رصيد النقاط:* `{points} نقطة`\n"
             f"🌐 *اللغة الحالية:* 🇸🇦 العربية\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🚀 *أقوى وأسرع بروكسيات 5G وسكنية نقية 100%*\n"
             f"• سرعات اتصال فائقة تصل إلى 1 Gbps\n"
-            f"• تدوير فوري وتغطية دولية واسعة\n"
+            f"• تدوير فوري للآيبي ومواقع جغرافية متعددة\n"
             f"• تسليم فوري وتلقائي بمجرد الشراء\n\n"
-            f"👇 *اختر من القائمة أدناه للبدء:*"
+            f"👇 *استخدم أزرار القائمة بالأسفل للتنقل بسهولة:*"
         )
     elif lang == "ru":
         return (
@@ -121,7 +129,7 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
             f"• Скорость до 1 Гбит/с\n"
             f"• Мгновенная ротация IP\n"
             f"• Автоматическая выдача\n\n"
-            f"👇 *Выберите действие из меню:*"
+            f"👇 *Используйте кнопки меню внизу для навигации:*"
         )
     elif lang == "hi":
         return (
@@ -136,7 +144,7 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
             f"• 1 Gbps तक की स्पीड\n"
             f"• तुरंत IP रोटेशन\n"
             f"• तुरंत डिलीवरी\n\n"
-            f"👇 *शुरू करने के लिए नीचे चुनें:*"
+            f"👇 *नेविगेट करने के लिए नीचे दिए गए मेनू का उपयोग करें:*"
         )
     else:
         return (
@@ -151,7 +159,7 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
             f"• Ultra-fast speeds up to 1 Gbps\n"
             f"• Instant IP rotation & Multiple Geo-Locations\n"
             f"• Instant automated delivery\n\n"
-            f"👇 *Select an option below to proceed:*"
+            f"👇 *Use the bottom menu buttons to navigate:* "
         )
 
 
@@ -181,10 +189,11 @@ async def cmd_start(message: Message) -> None:
         )
         return
 
+    # Send welcome text with bottom Reply Keyboard
     await message.answer(
         text=_build_welcome(user, wallet),
         parse_mode="Markdown",
-        reply_markup=main_menu_kb(user.language),
+        reply_markup=reply_main_menu_kb(user.language),
     )
 
 
@@ -219,10 +228,16 @@ async def cb_lang_init(callback: CallbackQuery) -> None:
             await session.refresh(user)
             await session.refresh(wallet)
 
-    await callback.message.edit_text(
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+
+    # Send welcome with persistent bottom Reply Keyboard
+    await callback.message.answer(
         text=_build_welcome(user, wallet),
         parse_mode="Markdown",
-        reply_markup=main_menu_kb(user.language),
+        reply_markup=reply_main_menu_kb(user.language),
     )
     await callback.answer()
 
@@ -259,7 +274,210 @@ async def cmd_help(message: Message) -> None:
     )
 
 
-# ─── menu:main ────────────────────────────────────────────────────────────────
+# ─── Reply Keyboard Handlers (Large Bottom Buttons) ───────────────────────────
+
+@router.message(F.text.in_(ALL_BUY_TEXTS))
+async def handle_reply_buy(message: Message) -> None:
+    async with AsyncSessionLocal() as session:
+        user_res = await session.execute(
+            select(User).where(User.telegram_id == message.from_user.id)
+        )
+        user = user_res.scalar_one_or_none()
+        lang = user.language if user else "ar"
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=t("catalog_prime_hyper", lang), callback_data="buy:cat:prime")],
+            [InlineKeyboardButton(text=t("catalog_nexus", lang), callback_data="buy:cat:nexus")],
+            [InlineKeyboardButton(text=t("catalog_titan", lang), callback_data="buy:cat:titan")],
+        ]
+    )
+    text = (
+        "🚀 *اختر باقة البروكسي التي تناسبك:*\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n"
+        "⚡️ *PRIME / HYPER*: بروكسيات 5G فائقة السرعة وتدوير غير محدود.\n"
+        "🔄 *NEXUS*: تدوير فوري للآيبي ومواقع جغرافية متعددة.\n"
+        "💎 *TITAN*: بروكسيات سكنية فائقة النقاء للأعمال الحساسة.\n"
+    ) if lang == "ar" else (
+        "🚀 *Select a Proxy Package:*\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n"
+        "⚡️ *PRIME / HYPER*: High-speed 5G Mobile proxies with unlimited rotation.\n"
+        "🔄 *NEXUS*: Instant API IP rotation and extensive geo-locations.\n"
+        "💎 *TITAN*: Elite Residential proxies for sensitive operations.\n"
+    )
+    await message.answer(text=text, parse_mode="Markdown", reply_markup=kb)
+
+
+@router.message(F.text.in_(ALL_MY_PROXIES_TEXTS))
+async def handle_reply_my_proxies(message: Message) -> None:
+    async with AsyncSessionLocal() as session:
+        user_res = await session.execute(
+            select(User).where(User.telegram_id == message.from_user.id)
+        )
+        user = user_res.scalar_one_or_none()
+        if not user:
+            user, _ = await get_or_create_user(session, message.from_user)
+
+        lang = user.language or "ar"
+
+        proxies_res = await session.execute(
+            select(Proxy)
+            .where(Proxy.user_id == user.id, Proxy.is_active == True)
+            .order_by(desc(Proxy.created_at))
+        )
+        active_proxies = proxies_res.scalars().all()
+
+    if not active_proxies:
+        no_proxies_text = (
+            "🔌 *ليس لديك أي بروكسيات نشطة حالياً.*\n\n"
+            "يمكنك شراء بروكسي 5G فائق السرعة الآن بالضغط على زر *🚀 شراء بروكسي 5G* بالأسفل."
+        ) if lang == "ar" else (
+            "🔌 *You have no active proxies at the moment.*\n\n"
+            "You can purchase high-speed 5G proxies by tapping *🚀 Buy 5G Proxies* below."
+        )
+        await message.answer(text=no_proxies_text, parse_mode="Markdown")
+        return
+
+    title = t("my_proxies_title", lang, count=len(active_proxies))
+    await message.answer(text=f"*{title}*", parse_mode="Markdown")
+
+    for p in active_proxies:
+        card_text = (
+            f"🔌 *{p.product_name or p.product_code}*\n"
+            f"━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📍 *Location:* {p.country_name or p.country}\n"
+            f"🌐 *Host:* `{p.host}`\n"
+            f"🔌 *Port:* `{p.port}`\n"
+            f"👤 *Username:* `{p.username}`\n"
+            f"🔑 *Password:* `{p.password}`\n"
+            f"📅 *Expires:* {p.expiry_date.strftime('%Y-%m-%d %H:%M') if p.expiry_date else '—'}\n"
+        )
+        await message.answer(
+            text=card_text,
+            parse_mode="Markdown",
+            reply_markup=proxy_card_kb(lang, p.request_id, p.category),
+        )
+
+
+@router.message(F.text.in_(ALL_DEPOSIT_TEXTS))
+async def handle_reply_deposit(message: Message) -> None:
+    async with AsyncSessionLocal() as session:
+        user_res = await session.execute(
+            select(User).where(User.telegram_id == message.from_user.id)
+        )
+        user = user_res.scalar_one_or_none()
+        lang = user.language if user else "ar"
+
+    text = t("deposit_select_method", lang)
+    await message.answer(
+        text=text,
+        parse_mode="Markdown",
+        reply_markup=deposit_methods_kb(lang),
+    )
+
+
+@router.message(F.text.in_(ALL_WALLET_TEXTS))
+async def handle_reply_wallet(message: Message) -> None:
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(User, Wallet)
+            .join(Wallet, Wallet.user_id == User.id)
+            .where(User.telegram_id == message.from_user.id)
+        )
+        row = result.first()
+        if not row:
+            user, wallet = await get_or_create_user(session, message.from_user)
+        else:
+            user, wallet = row
+
+        lang = user.language or "ar"
+        acc_id = user.account_id or str(user.telegram_id)
+        balance_usd = f"{wallet.balance:.2f}"
+        points = f"{(wallet.balance * 100):.0f}"
+        deposited = f"{wallet.total_deposited:.2f}"
+        spent = f"{wallet.total_spent:.2f}"
+
+        if lang == "ar":
+            text = (
+                f"💳 *محفظتي وتفاصيل الحساب | My Wallet*\n"
+                f"━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🆔 *معرّف الحساب (ID):* `{acc_id}`\n"
+                f"💎 *الرصيد المتاح:* `${balance_usd}`\n"
+                f"🎯 *رصيد النقاط:* `{points} نقطة`\n"
+                f"📈 *إجمالي المشحون:* `${deposited}`\n"
+                f"🛒 *إجمالي المشتريات:* `${spent}`\n"
+                f"━━━━━━━━━━━━━━━━━━━━━\n"
+                f"💡 *ملاحظة:* كل 1 دولار = 100 نقطة. يمكنك شحن الرصيد فوراً عبر Binance USDT TRC20 أو فودافون كاش."
+            )
+        else:
+            text = (
+                f"💳 *My Wallet & Account Profile*\n"
+                f"━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🆔 *Account ID:* `{acc_id}`\n"
+                f"💎 *Available Balance:* `${balance_usd}`\n"
+                f"🎯 *Points Balance:* `{points} Points`\n"
+                f"📈 *Total Deposited:* `${deposited}`\n"
+                f"🛒 *Total Spent:* `${spent}`\n"
+                f"━━━━━━━━━━━━━━━━━━━━━\n"
+                f"💡 *Note:* $1.00 USD = 100 Points. You can top up instantly via Binance USDT or Vodafone Cash."
+            )
+
+        kb = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text=t("menu_deposit", lang), callback_data="deposit:main")]
+            ]
+        )
+        await message.answer(text=text, reply_markup=kb, parse_mode="Markdown")
+
+
+@router.message(F.text.in_(ALL_SUPPORT_TEXTS))
+async def handle_reply_support(message: Message) -> None:
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(User).where(User.telegram_id == message.from_user.id)
+        )
+        user = result.scalar_one_or_none()
+        lang = user.language if user else "ar"
+
+    support_text = (
+        "💬 *الدعم الفني المباشر | Direct Support*\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n"
+        "لأي استفسار، مساعدة فنية، أو مشاكل في شحن الرصيد والبروكسيات، يمكنك التواصل مباشرة مع الإدارة عبر تيليجرام:\n\n"
+        "👤 *حساب الدعم:* [@BumBoyAliBasher](https://t.me/BumBoyAliBasher)\n"
+        "⏰ *متاحين للرد السريع على مدار الساعة*"
+    ) if lang == "ar" else (
+        "💬 *Customer Support*\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n"
+        "For any assistance, billing inquiries, or technical support, contact our team directly on Telegram:\n\n"
+        "👤 *Support Contact:* [@BumBoyAliBasher](https://t.me/BumBoyAliBasher)\n"
+        "⏰ *Available 24/7 for fast assistance*"
+    )
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="💬 Open Support Chat", url=SUPPORT_URL)]
+        ]
+    )
+    await message.answer(text=support_text, parse_mode="Markdown", reply_markup=kb)
+
+
+@router.message(F.text.in_(ALL_LANG_TEXTS))
+async def handle_reply_language(message: Message) -> None:
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(User).where(User.telegram_id == message.from_user.id)
+        )
+        user = result.scalar_one_or_none()
+        lang = user.language if user else "ar"
+
+    await message.answer(
+        text=t("lang_select_title", lang),
+        parse_mode="Markdown",
+        reply_markup=language_kb(),
+    )
+
+
+# ─── Ongoing Inline Callbacks ─────────────────────────────────────────────────
 
 @router.callback_query(F.data == "menu:main")
 async def cb_menu_main(callback: CallbackQuery) -> None:
@@ -286,45 +504,9 @@ async def cb_menu_main(callback: CallbackQuery) -> None:
     await callback.message.edit_text(
         text=_build_welcome(user, wallet),
         parse_mode="Markdown",
-        reply_markup=main_menu_kb(user.language),
     )
     await callback.answer()
 
-
-# ─── menu:support ─────────────────────────────────────────────────────────────
-
-@router.callback_query(F.data == "menu:support")
-async def cb_menu_support(callback: CallbackQuery) -> None:
-    async with AsyncSessionLocal() as session:
-        result = await session.execute(
-            select(User).where(User.telegram_id == callback.from_user.id)
-        )
-        user = result.scalar_one_or_none()
-        lang = user.language if user else "ar"
-
-    support_text = (
-        "💬 *الدعم الفني المباشر | Support*\n"
-        "━━━━━━━━━━━━━━━━━━━━━\n"
-        "لأي استفسار، مساعدة فنية، أو مشاكل في شحن الرصيد والبروكسيات، يمكنك التواصل مباشرة مع الإدارة عبر تيليجرام:\n\n"
-        "👤 *حساب الدعم:* [@BumBoyAliBasher](https://t.me/BumBoyAliBasher)\n"
-        "⏰ *متاحين للرد السريع على مدار الساعة*"
-    ) if lang == "ar" else (
-        "💬 *Customer Support*\n"
-        "━━━━━━━━━━━━━━━━━━━━━\n"
-        "For any assistance, billing inquiries, or technical support, contact our team directly on Telegram:\n\n"
-        "👤 *Support Contact:* [@BumBoyAliBasher](https://t.me/BumBoyAliBasher)\n"
-        "⏰ *Available 24/7 for fast assistance*"
-    )
-
-    await callback.message.edit_text(
-        text=support_text,
-        parse_mode="Markdown",
-        reply_markup=support_kb(lang),
-    )
-    await callback.answer()
-
-
-# ─── menu:language ────────────────────────────────────────────────────────────
 
 @router.callback_query(F.data == "menu:language")
 async def cb_menu_language(callback: CallbackQuery) -> None:
@@ -342,8 +524,6 @@ async def cb_menu_language(callback: CallbackQuery) -> None:
     )
     await callback.answer()
 
-
-# ─── lang:{code} ──────────────────────────────────────────────────────────────
 
 @router.callback_query(F.data.startswith("lang:"))
 async def cb_lang_select(callback: CallbackQuery) -> None:
@@ -375,10 +555,15 @@ async def cb_lang_select(callback: CallbackQuery) -> None:
             await session.refresh(user)
             await session.refresh(wallet)
 
-    # Acknowledge in the new language, then show main menu
-    await callback.message.edit_text(
+    # Edit message and refresh persistent bottom reply keyboard
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+
+    await callback.message.answer(
         text=t("lang_changed", new_lang) + "\n\n" + _build_welcome(user, wallet),
         parse_mode="Markdown",
-        reply_markup=main_menu_kb(new_lang),
+        reply_markup=reply_main_menu_kb(new_lang),
     )
     await callback.answer()

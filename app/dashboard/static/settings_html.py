@@ -3,12 +3,12 @@ SETTINGS_HTML = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GoldenEra Admin — Settings & Pricing</title>
+  <title>GoldenEra Admin — System Settings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: #09090b; color: #fafafa; font-family: 'Inter', sans-serif; display: flex; min-height: 100vh; }
+    body { background-color: #09090b; color: #fafafa; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; display: flex; min-height: 100vh; }
     a { color: inherit; text-decoration: none; }
     .sidebar { width: 240px; background: #0f0f11; border-right: 1px solid #27272a; display: flex; flex-direction: column; flex-shrink: 0; }
     .sidebar-header { padding: 1.5rem 1.25rem; border-bottom: 1px solid #1f1f23; display: flex; align-items: center; gap: 0.75rem; }
@@ -16,9 +16,9 @@ SETTINGS_HTML = """<!DOCTYPE html>
     .logo-text { font-weight: 600; font-size: 0.95rem; }
     .nav-list { list-style: none; padding: 1rem 0.75rem; flex: 1; }
     .nav-item { margin-bottom: 0.25rem; }
-    .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.75rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; color: #a1a1aa; }
+    .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.75rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; color: #a1a1aa; transition: all 0.15s; }
     .nav-link:hover { background: #18181b; color: #fafafa; }
-    .nav-link.active { background: #18181b; color: #10b981; border: 1px solid #27272a; }
+    .nav-link.active { background: #18181b; color: #10b981; border: 1px solid #27272a; font-weight: 600; }
     .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid #1f1f23; font-size: 0.8rem; color: #71717a; display: flex; justify-content: space-between; }
     .logout-btn { color: #ef4444; font-weight: 500; }
     .main-wrap { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
@@ -26,17 +26,21 @@ SETTINGS_HTML = """<!DOCTYPE html>
     .top-title { font-size: 1.1rem; font-weight: 600; }
     .admin-pill { background: #18181b; border: 1px solid #27272a; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.8rem; color: #a1a1aa; }
     .admin-pill span { color: #10b981; font-weight: 600; }
-    .content-area { padding: 2rem; max-width: 800px; }
-    .card-box { background: #121214; border: 1px solid #27272a; border-radius: 8px; margin-bottom: 2rem; overflow: hidden; }
-    .card-header { padding: 1rem 1.25rem; border-bottom: 1px solid #27272a; font-weight: 600; font-size: 0.95rem; }
+    .content-area { padding: 2rem; max-width: 820px; }
+    
+    .card-box { background: #121214; border: 1px solid #27272a; border-radius: 8px; margin-bottom: 1.5rem; overflow: hidden; }
+    .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #27272a; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between; }
     .card-body { padding: 1.5rem; }
     .form-group { margin-bottom: 1.5rem; }
-    label { display: block; font-size: 0.85rem; font-weight: 500; color: #a1a1aa; margin-bottom: 0.5rem; }
-    .help-text { font-size: 0.75rem; color: #71717a; margin-top: 0.35rem; }
-    input { width: 100%; background: #18181b; border: 1px solid #27272a; border-radius: 6px; padding: 0.75rem 1rem; color: #fafafa; font-size: 0.95rem; outline: none; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; color: #e4e4e7; margin-bottom: 0.4rem; }
+    .help-text { font-size: 0.75rem; color: #71717a; margin-top: 0.4rem; }
+    input { width: 100%; background: #18181b; border: 1px solid #27272a; border-radius: 6px; padding: 0.75rem 1rem; color: #fafafa; font-size: 0.95rem; outline: none; font-family: 'JetBrains Mono', monospace; transition: border-color 0.15s; }
     input:focus { border-color: #10b981; }
-    .btn-save { background: #10b981; color: #09090b; border: none; border-radius: 6px; padding: 0.75rem 1.5rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+    .btn-save { background: #10b981; color: #09090b; border: none; border-radius: 6px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
     .btn-save:hover { background: #059669; }
+    
+    .toast { display: none; position: fixed; bottom: 2rem; right: 2rem; background: #10b981; color: #09090b; font-weight: 600; padding: 0.75rem 1.25rem; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 100; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -62,33 +66,38 @@ SETTINGS_HTML = """<!DOCTYPE html>
 
     <div class="content-area">
       <div class="card-box">
-        <div class="card-header">Margin & Exchange Rates</div>
+        <div class="card-header">
+          <div>Margins & FX Rates</div>
+          <span style="font-size: 0.75rem; color: #10b981; font-weight: 600;">Active in Real-Time</span>
+        </div>
         <div class="card-body">
           <form id="settings-form" onsubmit="saveSettings(event)">
             <div class="form-group">
               <label for="markup">Profit Markup Percentage (%)</label>
               <input type="number" step="0.1" id="markup" required>
-              <div class="help-text">Percentage added automatically over Magnum base cost. Example: 30 = +30% profit.</div>
+              <div class="help-text">Applied automatically over Magnum base cost (e.g., 30 adds a +30% profit margin to customer prices).</div>
             </div>
 
             <div class="form-group">
               <label for="rate">USD to EGP Exchange Rate</label>
               <input type="number" step="0.01" id="rate" required>
-              <div class="help-text">Used to convert Vodafone Cash EGP deposits into USD wallet balance (1$ = X EGP).</div>
+              <div class="help-text">Rate applied to Vodafone Cash deposits when crediting USD wallet balance ($1.00 USD = X EGP).</div>
             </div>
 
             <div class="form-group">
-              <label for="vf-number">Vodafone Cash Receiving Number</label>
+              <label for="vf-number">Vodafone Cash Receiving Wallet Phone Number</label>
               <input type="text" id="vf-number" required>
-              <div class="help-text">The phone number displayed to customers in the bot when they select Vodafone Cash deposit.</div>
+              <div class="help-text">The official receiving mobile wallet number presented to customers in the Telegram bot deposit wizard.</div>
             </div>
 
-            <button type="submit" class="btn-save">Save Settings</button>
+            <button type="submit" class="btn-save" id="btn-save">Save Settings 💾</button>
           </form>
         </div>
       </div>
     </div>
   </div>
+
+  <div id="toast" class="toast">✅ Settings saved and applied successfully!</div>
 
   <script>
     async function loadSettings() {
@@ -105,6 +114,10 @@ SETTINGS_HTML = """<!DOCTYPE html>
 
     async function saveSettings(e) {
       e.preventDefault();
+      const btn = document.getElementById('btn-save');
+      btn.disabled = true;
+      btn.innerText = 'Saving... ⏳';
+
       const payload = {
         markup_percent: parseFloat(document.getElementById('markup').value),
         usd_to_egp_rate: parseFloat(document.getElementById('rate').value),
@@ -117,13 +130,23 @@ SETTINGS_HTML = """<!DOCTYPE html>
           body: JSON.stringify(payload)
         });
         if (res.ok) {
-          alert('Settings saved successfully!');
+          showToast('✅ Settings updated and synchronized!');
         } else {
           alert('Failed to save settings.');
         }
       } catch(err) {
         alert(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save Settings 💾';
       }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3500);
     }
 
     loadSettings();

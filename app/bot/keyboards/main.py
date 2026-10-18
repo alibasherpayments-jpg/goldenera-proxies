@@ -2,11 +2,86 @@
 Inline keyboard builders for GoldenEra 5G Proxies bot.
 All labels come from the i18n t() function.
 """
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+)
 from app.bot.i18n import t, LANGUAGES
 
 
 SUPPORT_URL = "https://t.me/BumBoyAliBasher"
+
+
+REPLY_MENU_TEXTS = {
+    "buy": {
+        "ar": "🚀 شراء بروكسي 5G",
+        "en": "🚀 Buy 5G Proxies",
+        "ru": "🚀 Купить прокси",
+        "hi": "🚀 प्रॉक्सी खरीदें",
+    },
+    "my_proxies": {
+        "ar": "🔌 بروكسياتي النشطة",
+        "en": "🔌 My Active Proxies",
+        "ru": "🔌 Мои прокси",
+        "hi": "🔌 मेरी प्रॉक्सी",
+    },
+    "deposit": {
+        "ar": "💳 شحن الرصيد",
+        "en": "💳 Deposit Funds",
+        "ru": "💳 Пополнить баланс",
+        "hi": "💳 फंड जमा करें",
+    },
+    "wallet": {
+        "ar": "💼 المحفظة والنقاط",
+        "en": "💼 Wallet & Points",
+        "ru": "💼 Кошелек и баллы",
+        "hi": "💼 वॉलेट और अंक",
+    },
+    "support": {
+        "ar": "💬 الدعم الفني",
+        "en": "💬 Direct Support",
+        "ru": "💬 Поддержка",
+        "hi": "💬 सहायता",
+    },
+    "language": {
+        "ar": "🌐 تغيير اللغة",
+        "en": "🌐 Change Language",
+        "ru": "🌐 Сменить язык",
+        "hi": "🌐 भाषा बदलें",
+    },
+}
+
+ALL_BUY_TEXTS = set(REPLY_MENU_TEXTS["buy"].values()) | {"🚀 Buy 5G Proxies", "🚀 شراء بروكسي", "شراء بروكسي", "Buy 5G Proxies"}
+ALL_MY_PROXIES_TEXTS = set(REPLY_MENU_TEXTS["my_proxies"].values()) | {"🔌 My Active Proxies", "🔌 بروكسياتي", "بروكسياتي", "My Active Proxies"}
+ALL_DEPOSIT_TEXTS = set(REPLY_MENU_TEXTS["deposit"].values()) | {"💳 Deposit Funds", "💳 شحن الرصيد", "شحن الرصيد", "Deposit Funds"}
+ALL_WALLET_TEXTS = set(REPLY_MENU_TEXTS["wallet"].values()) | {"💼 Wallet & Points", "💼 المحفظة والنقاط", "المحفظة", "Wallet & Points"}
+ALL_SUPPORT_TEXTS = set(REPLY_MENU_TEXTS["support"].values()) | {"💬 Direct Support", "💬 الدعم الفني", "الدعم", "Direct Support"}
+ALL_LANG_TEXTS = set(REPLY_MENU_TEXTS["language"].values()) | {"🌐 Change Language", "🌐 تغيير اللغة", "Language", "تغيير اللغة"}
+
+
+def reply_main_menu_kb(lang: str) -> ReplyKeyboardMarkup:
+    """Bottom persistent menu buttons (native grid format replacing cards)."""
+    lang_key = lang if lang in ("ar", "en", "ru", "hi") else "en"
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text=REPLY_MENU_TEXTS["buy"][lang_key]),
+                KeyboardButton(text=REPLY_MENU_TEXTS["my_proxies"][lang_key]),
+            ],
+            [
+                KeyboardButton(text=REPLY_MENU_TEXTS["deposit"][lang_key]),
+                KeyboardButton(text=REPLY_MENU_TEXTS["wallet"][lang_key]),
+            ],
+            [
+                KeyboardButton(text=REPLY_MENU_TEXTS["support"][lang_key]),
+                KeyboardButton(text=REPLY_MENU_TEXTS["language"][lang_key]),
+            ],
+        ],
+        resize_keyboard=True,
+        is_persistent=True,
+    )
 
 
 def main_menu_kb(lang: str) -> InlineKeyboardMarkup:

@@ -5,13 +5,13 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GoldenEra Admin — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: #09090b;
       color: #fafafa;
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       display: flex;
       min-height: 100vh;
     }
@@ -60,15 +60,17 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       transition: all 0.15s ease;
     }
     .nav-link:hover { background: #18181b; color: #fafafa; }
-    .nav-link.active { background: #18181b; color: #10b981; border: 1px solid #27272a; }
+    .nav-link.active { background: #18181b; color: #10b981; border: 1px solid #27272a; font-weight: 600; }
     .nav-badge {
       margin-left: auto;
-      background: #92400e;
-      color: #fef3c7;
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.4);
       font-size: 0.7rem;
-      padding: 2px 6px;
+      padding: 1px 7px;
       border-radius: 10px;
-      font-weight: 600;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
     }
     .sidebar-footer {
       padding: 1rem 1.25rem;
@@ -116,10 +118,26 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       border: 1px solid #27272a;
       border-radius: 8px;
       padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
     }
-    .kpi-label { font-size: 0.8rem; color: #71717a; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; }
-    .kpi-value { font-size: 1.75rem; font-weight: 700; margin: 0.5rem 0 0.25rem; font-family: 'JetBrains Mono', monospace; }
-    .kpi-sub { font-size: 0.75rem; color: #10b981; font-weight: 500; }
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #27272a;
+    }
+    .kpi-card.accent-emerald::before { background: #10b981; }
+    .kpi-card.accent-blue::before { background: #3b82f6; }
+    .kpi-card.accent-amber::before { background: #f59e0b; }
+    .kpi-card.accent-purple::before { background: #a855f7; }
+
+    .kpi-label { font-size: 0.75rem; color: #71717a; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; }
+    .kpi-value { font-size: 1.85rem; font-weight: 700; margin: 0.5rem 0 0.25rem; font-family: 'JetBrains Mono', monospace; }
+    .kpi-sub { font-size: 0.75rem; color: #a1a1aa; font-weight: 500; }
 
     /* Tables */
     .card-box {
@@ -136,7 +154,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       justify-content: space-between;
       align-items: center;
     }
-    .card-title { font-size: 0.95rem; font-weight: 600; }
+    .card-title { font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
     th {
       background: #09090b;
@@ -145,7 +163,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       padding: 0.75rem 1.25rem;
       border-bottom: 1px solid #27272a;
       text-transform: uppercase;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       letter-spacing: 0.05em;
     }
     td { padding: 0.85rem 1.25rem; border-bottom: 1px solid #1f1f23; }
@@ -153,30 +171,55 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     tr:hover td { background: #18181b; }
     
     /* Badges & Buttons */
+    .account-id-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      padding: 2px 7px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .points-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
     .badge {
       display: inline-block;
       padding: 2px 8px;
       border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.72rem;
+      font-weight: 700;
       text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
     }
-    .badge-pending { background: #451a03; color: #f59e0b; border: 1px solid #92400e; }
-    .badge-approved, .badge-succeeded { background: #022c22; color: #10b981; border: 1px solid #065f46; }
-    .badge-rejected, .badge-failed { background: #450a0a; color: #ef4444; border: 1px solid #991b1b; }
+    .badge-pending, .badge-queued { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-approved, .badge-succeeded { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-rejected, .badge-failed { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
     
     .btn-action {
-      padding: 4px 10px;
-      border-radius: 4px;
+      padding: 5px 12px;
+      border-radius: 5px;
       font-size: 0.75rem;
       font-weight: 600;
       cursor: pointer;
       border: none;
-      transition: opacity 0.15s;
+      transition: all 0.15s;
     }
-    .btn-action:hover { opacity: 0.85; }
     .btn-approve { background: #10b981; color: #09090b; }
-    .btn-reject { background: #ef4444; color: #fafafa; margin-left: 4px; }
+    .btn-approve:hover { background: #059669; }
+    .btn-reject { background: #ef4444; color: #fafafa; margin-left: 6px; }
+    .btn-reject:hover { background: #dc2626; }
   </style>
 </head>
 <body>
@@ -208,68 +251,71 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 
     <div class="content-area">
       <div class="kpi-grid">
-        <div class="kpi-card">
+        <div class="kpi-card accent-blue">
           <div class="kpi-label">Total Users</div>
           <div class="kpi-value" id="kpi-users">—</div>
-          <div class="kpi-sub">Bot Subscribers</div>
+          <div class="kpi-sub">Bot Accounts Registered</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card accent-emerald">
           <div class="kpi-label">Active Proxies</div>
           <div class="kpi-value" id="kpi-proxies" style="color: #10b981;">—</div>
-          <div class="kpi-sub">Currently Running</div>
+          <div class="kpi-sub">Live Instances Active</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card accent-purple">
           <div class="kpi-label">Today Revenue</div>
           <div class="kpi-value" id="kpi-revenue">—</div>
           <div class="kpi-sub" id="kpi-orders-count">0 orders today</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card accent-amber">
           <div class="kpi-label">Magnum API Credit</div>
           <div class="kpi-value" id="kpi-magnum">—</div>
-          <div class="kpi-sub" id="kpi-magnum-status">Connected</div>
+          <div class="kpi-sub" id="kpi-magnum-status">Upstream Provider Balance</div>
         </div>
       </div>
 
       <div class="card-box">
         <div class="card-header">
-          <div class="card-title">Pending Deposits (Vodafone Cash)</div>
-          <a href="/admin/deposits" style="font-size: 0.8rem; color: #10b981;">View All →</a>
+          <div class="card-title">💳 Pending Deposits (Action Required)</div>
+          <a href="/admin/deposits" style="font-size: 0.8rem; color: #10b981; font-weight: 500;">View All Deposits →</a>
         </div>
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>User</th>
+              <th>Deposit ID</th>
+              <th>Account ID</th>
+              <th>Customer</th>
               <th>Method</th>
-              <th>Sender Phone</th>
-              <th>TxID</th>
+              <th>Sender Phone / TxID</th>
               <th>Amount (USD / EGP)</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody id="pending-deposits-body">
-            <tr><td colspan="7" style="text-align: center; color: #71717a;">Loading deposits...</td></tr>
+            <tr><td colspan="7" style="text-align: center; color: #71717a; padding: 2rem;">Loading pending queue...</td></tr>
           </tbody>
         </table>
       </div>
 
       <div class="card-box">
         <div class="card-header">
-          <div class="card-title">Recent Proxy Orders</div>
+          <div class="card-title">⚡ Recent Orders & Dispatch Log</div>
+          <a href="/admin/transactions" style="font-size: 0.8rem; color: #3b82f6; font-weight: 500;">All Transactions →</a>
         </div>
         <table>
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>User ID</th>
+              <th>Order Ref</th>
+              <th>Account ID</th>
+              <th>Customer</th>
               <th>Product Code</th>
               <th>Status</th>
               <th>Amount</th>
-              <th>Time</th>
+              <th>Points</th>
+              <th>Timestamp</th>
             </tr>
           </thead>
           <tbody id="recent-orders-body">
-            <tr><td colspan="6" style="text-align: center; color: #71717a;">Loading orders...</td></tr>
+            <tr><td colspan="8" style="text-align: center; color: #71717a; padding: 2rem;">Loading orders...</td></tr>
           </tbody>
         </table>
       </div>
@@ -285,8 +331,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         document.getElementById('kpi-users').textContent = d.total_users;
         document.getElementById('kpi-proxies').textContent = d.active_proxies;
         document.getElementById('kpi-revenue').textContent = '$' + (d.today_revenue || 0).toFixed(2);
-        document.getElementById('kpi-orders-count').textContent = d.today_orders + ' orders today';
-        document.getElementById('kpi-magnum').textContent = '$' + (d.magnum_balance || 0).toFixed(2);
+        document.getElementById('kpi-orders-count').textContent = (d.today_orders || 0) + ' orders today';
+        document.getElementById('kpi-magnum').textContent = (d.magnum_balance >= 0) ? ('$' + d.magnum_balance.toFixed(2)) : 'N/A';
 
         if (d.pending_deposits_count > 0) {
           const badge = document.getElementById('pending-badge');
@@ -296,19 +342,22 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 
         // Render Recent Orders
         const ordBody = document.getElementById('recent-orders-body');
-        if (d.recent_orders && d.recent_orders.length > 0) {
-          ordBody.innerHTML = d.recent_orders.map(o => `
+        const orders = d.recent_orders || [];
+        if (orders.length > 0) {
+          ordBody.innerHTML = orders.map(o => `
             <tr>
-              <td style="font-family: monospace;">#${o.id}</td>
-              <td>${o.telegram_id || o.user_id}</td>
-              <td style="font-family: monospace;">${o.product_code}</td>
+              <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #a1a1aa;">#${o.id}</td>
+              <td><span class="account-id-badge">🆔 ${o.account_id || o.telegram_id}</span></td>
+              <td><strong>${o.username ? '@' + o.username : (o.telegram_id || '—')}</strong></td>
+              <td style="font-family: 'JetBrains Mono', monospace; color: #38bdf8;">${o.product_code}</td>
               <td><span class="badge badge-${o.status}">${o.status}</span></td>
-              <td style="font-weight: 600;">$${o.amount.toFixed(2)}</td>
-              <td style="color: #71717a;">${new Date(o.created_at).toLocaleString()}</td>
+              <td style="font-weight: 700; color: #fafafa; font-family: monospace;">$${(o.amount || 0).toFixed(2)}</td>
+              <td><span class="points-badge">${o.points || 0} pts</span></td>
+              <td style="color: #71717a; font-size: 0.8rem;">${o.created_at ? new Date(o.created_at).toLocaleString() : '—'}</td>
             </tr>
           `).join('');
         } else {
-          ordBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #71717a;">No orders yet.</td></tr>';
+          ordBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #71717a; padding: 2rem;">No orders recorded yet.</td></tr>';
         }
       } catch (e) {
         console.error(e);
@@ -319,20 +368,21 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       try {
         const res = await fetch('/admin/api/deposits?status=pending');
         if (!res.ok) return;
-        const deposits = await res.json();
+        const data = await res.json();
+        const deposits = data.deposits || (Array.isArray(data) ? data : []);
         const tbody = document.getElementById('pending-deposits-body');
         if (!deposits || deposits.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #71717a;">No pending deposits right now.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #71717a; padding: 2rem;">No pending deposits in queue.</td></tr>';
           return;
         }
         tbody.innerHTML = deposits.map(dep => `
           <tr>
-            <td>#${dep.id}</td>
-            <td><strong>${dep.username || dep.telegram_id}</strong></td>
-            <td>${dep.method}</td>
-            <td style="font-family: monospace;">${dep.sender_phone || '—'}</td>
-            <td style="font-family: monospace; font-size: 0.75rem;">${dep.txid}</td>
-            <td><strong>$${dep.amount_usd.toFixed(2)}</strong> <span style="color:#71717a">(${dep.amount_local || 0} EGP)</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">#${dep.id}</td>
+            <td><span class="account-id-badge">🆔 ${dep.user_account_id || dep.user_telegram_id}</span></td>
+            <td><strong>${dep.user_name || dep.user_telegram_id}</strong></td>
+            <td><span style="text-transform: uppercase; font-size: 0.75rem; font-weight: 700; color: #38bdf8;">${dep.method}</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${dep.sender_phone || dep.txid || '—'}</td>
+            <td><strong style="color: #10b981; font-family: monospace;">$${(dep.amount_usd || 0).toFixed(2)}</strong> <span style="color:#71717a; font-size: 0.78rem;">(${dep.amount_local || 0} EGP)</span></td>
             <td>
               <button class="btn-action btn-approve" onclick="reviewDeposit(${dep.id}, 'approve')">Approve</button>
               <button class="btn-action btn-reject" onclick="reviewDeposit(${dep.id}, 'reject')">Reject</button>

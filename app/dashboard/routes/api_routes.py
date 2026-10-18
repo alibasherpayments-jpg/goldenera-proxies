@@ -81,6 +81,25 @@ async def get_stats(_admin=Depends(get_current_admin)):
             )
         ).scalar_one()
 
+        recent_orders_rows = await db.execute(
+            select(Order).options(selectinload(Order.user)).order_by(desc(Order.created_at)).limit(10)
+        )
+        recent_orders = [
+            {
+                "id": o.id,
+                "user_id": o.user_id,
+                "telegram_id": o.user.telegram_id if o.user else o.user_id,
+                "account_id": o.user.account_id if o.user and o.user.account_id else (str(o.user.telegram_id) if o.user else "—"),
+                "username": o.user.username if o.user else None,
+                "product_code": o.product_code,
+                "status": o.status,
+                "amount": o.amount_deducted,
+                "points": int(round(o.amount_deducted * 100)),
+                "created_at": o.created_at.isoformat() if o.created_at else None,
+            }
+            for o in recent_orders_rows.scalars().all()
+        ]
+
     # Magnum wallet balance
     magnum_balance = 0.0
     try:
@@ -96,6 +115,7 @@ async def get_stats(_admin=Depends(get_current_admin)):
         "magnum_balance": round(magnum_balance, 2),
         "pending_deposits_count": pending_deposits_count,
         "today_orders": today_orders,
+        "recent_orders": recent_orders,
     }
 
 
@@ -392,6 +412,7 @@ async def list_deposits(
                 {
                     "id": d.id,
                     "user_telegram_id": d.user.telegram_id if d.user else None,
+                    "user_account_id": d.user.account_id if d.user and d.user.account_id else (str(d.user.telegram_id) if d.user else "—"),
                     "user_name": (
                         d.user.first_name or d.user.username if d.user else "Unknown"
                     ),
@@ -528,14 +549,19 @@ async def list_proxies(
                     "product_code": p.product_code,
                     "country": p.country,
                     "country_name": p.country_name,
+                    "location": p.display_location,
+                    "flag": p.flag,
                     "protocol": p.protocol,
                     "host": p.host,
                     "port": p.port,
+                    "auth_username": p.username,
+                    "auth_password": p.password,
                     "is_active": p.is_active,
                     "price_paid": p.price_paid,
                     "expiry_date": p.expiry_date.isoformat() if p.expiry_date else None,
                     "created_at": p.created_at.isoformat() if p.created_at else None,
                     "user_telegram_id": p.user.telegram_id if p.user else None,
+                    "user_account_id": p.user.account_id if p.user and p.user.account_id else (str(p.user.telegram_id) if p.user else "—"),
                     "user_name": (
                         p.user.first_name or p.user.username if p.user else "Unknown"
                     ),
