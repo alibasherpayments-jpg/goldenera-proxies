@@ -31,9 +31,9 @@ class Settings(BaseSettings):
         return v
 
     # ── Dashboard Auth
-    DASHBOARD_SECRET_KEY: str = secrets.token_hex(32)
-    DASHBOARD_USERNAME: str = "admin"
-    DASHBOARD_PASSWORD: str = "changeme"
+    DASHBOARD_SECRET_KEY: str = "goldenera_dashboard_jwt_secure_super_secret_key_2026_x89a"
+    DASHBOARD_USERNAME: str = "BumBoy"
+    DASHBOARD_PASSWORD: str = "Arsenik@12"
 
     # ── Binance
     BINANCE_ID: str = "538860756"

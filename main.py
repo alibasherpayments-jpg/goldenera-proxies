@@ -8,8 +8,8 @@ import os
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, Cookie, Request
+from fastapi.responses import RedirectResponse, JSONResponse
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
@@ -88,7 +88,16 @@ async def webhook(update: dict):
 
 
 @app.get("/set-webhook")
-async def set_webhook_endpoint(url: str = None):
+async def set_webhook_endpoint(
+    url: str = None,
+    secret_key: str = None,
+    admin_token: str = Cookie(None, alias="admin_token"),
+):
+    from app.dashboard.auth import get_admin_optional
+    is_admin = bool(get_admin_optional(admin_token)) or (secret_key and secret_key == settings.DASHBOARD_SECRET_KEY)
+    if not is_admin:
+        return JSONResponse(status_code=403, content={"error": "Forbidden: Admin authentication required."})
+
     target = url or settings.WEBHOOK_BASE_URL
     if not target:
         return {"error": "Target URL required. Pass ?url=https://your-domain.vercel.app or set WEBHOOK_BASE_URL"}
@@ -99,7 +108,14 @@ async def set_webhook_endpoint(url: str = None):
 
 
 @app.get("/webhook-info")
-async def webhook_info():
+async def webhook_info(
+    secret_key: str = None,
+    admin_token: str = Cookie(None, alias="admin_token"),
+):
+    from app.dashboard.auth import get_admin_optional
+    is_admin = bool(get_admin_optional(admin_token)) or (secret_key and secret_key == settings.DASHBOARD_SECRET_KEY)
+    if not is_admin:
+        return JSONResponse(status_code=403, content={"error": "Forbidden: Admin authentication required."})
     info = await bot.get_webhook_info()
     return info.model_dump()
 

@@ -359,6 +359,7 @@ async def execute_purchase(callback: CallbackQuery, state: FSMContext, bot: Bot)
             select(User, Wallet)
             .join(Wallet, Wallet.user_id == User.id)
             .where(User.telegram_id == callback.from_user.id)
+            .with_for_update()
         )
         row = user_res.first()
         if not row:

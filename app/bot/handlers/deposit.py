@@ -2,6 +2,9 @@
 Deposit handler — Binance USDT TRC20 and Vodafone Cash flows.
 Includes FSM states, admin approve/reject callbacks.
 """
+import math
+import time
+from collections import defaultdict
 import logging
 from datetime import datetime, timezone
 
@@ -32,6 +35,21 @@ from app.services.binance_service import (
 
 logger = logging.getLogger(__name__)
 router = Router(name="deposit")
+
+# ── Anti-Spam / Rate-Limiter per user ──────────────────────────────────────────
+_USER_ATTEMPTS = defaultdict(list)
+_MAX_ATTEMPTS_PER_MIN = 5
+_WINDOW_SECONDS = 60
+
+
+def _check_rate_limit(user_id: int) -> bool:
+    now = time.time()
+    recent = [t for t in _USER_ATTEMPTS[user_id] if now - t < _WINDOW_SECONDS]
+    _USER_ATTEMPTS[user_id] = recent
+    if len(recent) >= _MAX_ATTEMPTS_PER_MIN:
+        return False
+    _USER_ATTEMPTS[user_id].append(now)
+    return True
 
 
 # ─── FSM States ───────────────────────────────────────────────────────────────
@@ -138,7 +156,11 @@ async def fsm_binance_txid(message: Message, state: FSMContext) -> None:
     lang: str = data.get("lang", "ar")
     txid = message.text.strip() if message.text else ""
 
-    if not txid:
+    if not _check_rate_limit(message.from_user.id):
+        await message.answer("⚠️ رجاء الانتظار دقيقة قبل المحاولة مرة أخرى." if lang == "ar" else "⚠️ Please wait a minute before trying again.")
+        return
+
+    if not txid or len(txid) < 5 or len(txid) > 128:
         await message.answer(t("deposit_enter_txid", lang))
         return
 
@@ -278,7 +300,11 @@ async def fsm_vf_txid(message: Message, state: FSMContext) -> None:
     lang: str = data.get("lang", "ar")
     txid = message.text.strip() if message.text else ""
 
-    if not txid:
+    if not _check_rate_limit(message.from_user.id):
+        await message.answer("⚠️ رجاء الانتظار دقيقة قبل المحاولة مرة أخرى." if lang == "ar" else "⚠️ Please wait a minute before trying again.")
+        return
+
+    if not txid or len(txid) < 5 or len(txid) > 128:
         await message.answer(t("deposit_vf_enter_txid", lang))
         return
 
@@ -305,7 +331,7 @@ async def fsm_vf_amount(message: Message, state: FSMContext, bot: Bot) -> None:
     raw = message.text.strip().replace("$", "") if message.text else ""
     try:
         amount_usd = float(raw)
-        if amount_usd <= 0:
+        if math.isnan(amount_usd) or math.isinf(amount_usd) or amount_usd < 0.1 or amount_usd > 10000.0:
             raise ValueError
     except ValueError:
         await message.answer(t("deposit_vf_enter_amount", lang))
@@ -407,7 +433,7 @@ async def cb_admin_approve(callback: CallbackQuery, bot: Bot) -> None:
 
     async with AsyncSessionLocal() as session:
         dep_result = await session.execute(
-            select(Deposit).where(Deposit.id == deposit_id)
+            select(Deposit).where(Deposit.id == deposit_id).with_for_update()
         )
         deposit = dep_result.scalar_one_or_none()
 
@@ -423,7 +449,7 @@ async def cb_admin_approve(callback: CallbackQuery, bot: Bot) -> None:
 
         # Credit the depositing user
         wallet_result = await session.execute(
-            select(Wallet).where(Wallet.user_id == deposit.user_id)
+            select(Wallet).where(Wallet.user_id == deposit.user_id).with_for_update()
         )
         wallet = wallet_result.scalar_one_or_none()
         if wallet:

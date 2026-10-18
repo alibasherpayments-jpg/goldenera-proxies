@@ -1,6 +1,7 @@
 """
 JWT-based admin authentication for the GoldenEra Admin Dashboard.
 """
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -63,9 +64,45 @@ async def get_current_admin(
     return verify_token(admin_token)
 
 
-def authenticate_admin(username: str, password: str) -> bool:
-    """Return True if the provided credentials match settings."""
-    return (
-        username == settings.DASHBOARD_USERNAME
-        and password == settings.DASHBOARD_PASSWORD
-    )
+def get_admin_optional(admin_token: Optional[str]) -> Optional[dict]:
+    """Helper for HTML page routes to safely verify JWT without throwing 401."""
+    if not admin_token:
+        return None
+    try:
+        return verify_token(admin_token)
+    except Exception:
+        return None
+
+
+async def authenticate_admin(username: str, password: str) -> bool:
+    """
+    Secure constant-time credential check.
+    Supports Neon DB SystemSetting table and config fallbacks.
+    Immune to timing attacks.
+    """
+    expected_user = settings.DASHBOARD_USERNAME
+    expected_pass = settings.DASHBOARD_PASSWORD
+
+    try:
+        from app.core.database import AsyncSessionLocal
+        from app.models.order import SystemSetting
+        async with AsyncSessionLocal() as session:
+            u_row = await session.get(SystemSetting, "dashboard_username")
+            p_row = await session.get(SystemSetting, "dashboard_password")
+            if u_row and u_row.value and u_row.value.strip():
+                expected_user = u_row.value.strip()
+            if p_row and p_row.value and p_row.value.strip():
+                expected_pass = p_row.value.strip()
+    except Exception:
+        pass
+
+    user_match = secrets.compare_digest(username.strip(), expected_user.strip())
+    pass_match = secrets.compare_digest(password.strip(), expected_pass.strip())
+    return user_match and pass_match
+
+
+def authenticate_admin_sync(username: str, password: str) -> bool:
+    """Sync fallback check with constant-time comparison."""
+    expected_user = settings.DASHBOARD_USERNAME
+    expected_pass = settings.DASHBOARD_PASSWORD
+    return secrets.compare_digest(username.strip(), expected_user.strip()) and secrets.compare_digest(password.strip(), expected_pass.strip())
