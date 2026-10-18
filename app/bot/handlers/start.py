@@ -367,7 +367,8 @@ async def handle_reply_deposit(message: Message) -> None:
         from app.core.helpers import get_usd_to_egp_rate
         rate = await get_usd_to_egp_rate(session)
 
-    text = t("deposit_choose_method", lang, rate=f"{rate:.2f}")
+    rate_str = f"{int(rate)}" if float(rate).is_integer() else f"{float(rate):.2f}"
+    text = t("deposit_choose_method", lang, rate=rate_str)
     await message.answer(
         text=text,
         parse_mode="Markdown",

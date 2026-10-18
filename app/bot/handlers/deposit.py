@@ -100,9 +100,10 @@ async def cb_deposit_main(callback: CallbackQuery) -> None:
     user, _wallet = await _get_user_and_wallet(callback.from_user.id)
     lang = user.language if user else "ar"
     rate = await _get_egp_rate()
+    rate_str = f"{int(rate)}" if float(rate).is_integer() else f"{float(rate):.2f}"
 
     await callback.message.edit_text(
-        text=t("deposit_choose_method", lang, rate=f"{rate:.2f}"),
+        text=t("deposit_choose_method", lang, rate=rate_str),
         parse_mode="Markdown",
         reply_markup=deposit_methods_kb(lang),
     )
@@ -254,13 +255,14 @@ async def cb_deposit_vf(callback: CallbackQuery, state: FSMContext) -> None:
     lang = user.language if user else "ar"
     rate = await _get_egp_rate()
     vodafone_number = await _get_vodafone_number()
+    rate_str = f"{int(rate)}" if float(rate).is_integer() else f"{float(rate):.2f}"
 
     await callback.message.edit_text(
         text=t(
             "deposit_vodafone_instructions",
             lang,
             vodafone_number=vodafone_number,
-            rate=f"{rate:.2f}",
+            rate=rate_str,
         ),
         parse_mode="Markdown",
         reply_markup=back_kb(lang),
