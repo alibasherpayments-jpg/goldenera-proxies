@@ -41,25 +41,23 @@ dp.include_router(catalog.router)
 
 
 # ── FastAPI Lifespan ───────────────────────────────
+_tables_initialized = False
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
-    logger.info("🚀 Starting GoldenEra Proxies Bot...")
-    await create_tables()
-    logger.info("✅ Database tables ready.")
+    global _tables_initialized
+    if not _tables_initialized:
+        try:
+            await create_tables()
+            _tables_initialized = True
+            logger.info("✅ Database tables verified.")
+        except Exception as e:
+            logger.warning(f"Database init warning: {e}")
 
-    if settings.is_production and settings.WEBHOOK_BASE_URL:
-        webhook_url = f"{settings.WEBHOOK_BASE_URL}/webhook"
-        await bot.set_webhook(webhook_url, drop_pending_updates=True)
-        logger.info(f"✅ Webhook set to {webhook_url}")
-    else:
-        # Development: polling mode
+    # Polling only in local development
+    if not settings.is_production:
         asyncio.create_task(_run_polling())
         logger.info("🔄 Bot running in long-polling mode.")
-
-    # Start expiry notification background task
-    asyncio.create_task(expiry_notification_loop(bot))
-    logger.info("⏰ Expiry notification loop started.")
 
     yield
 
