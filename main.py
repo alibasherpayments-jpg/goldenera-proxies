@@ -8,9 +8,10 @@ import os
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI, Cookie, Request
+from fastapi import FastAPI, Cookie, Request, Response
 from fastapi.responses import RedirectResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from app.dashboard.static.assets import get_png_bytes, get_ico_bytes, get_svg_bytes
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
@@ -78,25 +79,51 @@ async def root():
     return RedirectResponse(url="/admin")
 
 
-# Mount static files & Favicon
+# Mount static files & Favicon / Branding assets
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/favicon.ico", include_in_schema=False)
+@app.get("/static/favicon.ico", include_in_schema=False)
 async def favicon_ico():
-    if os.path.exists("static/favicon.ico"):
-        return FileResponse("static/favicon.ico", media_type="image/x-icon")
-    elif os.path.exists("static/logo.svg"):
-        return FileResponse("static/logo.svg", media_type="image/svg+xml")
-    return JSONResponse(status_code=404, content={"error": "Favicon not found"})
+    try:
+        return Response(
+            content=get_ico_bytes(),
+            media_type="image/x-icon",
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
+    except Exception as e:
+        logger.error(f"Error serving favicon.ico: {e}")
+        return JSONResponse(status_code=404, content={"error": "Favicon not found"})
 
 
 @app.get("/favicon.svg", include_in_schema=False)
-async def favicon_svg():
-    if os.path.exists("static/logo.svg"):
-        return FileResponse("static/logo.svg", media_type="image/svg+xml")
-    return JSONResponse(status_code=404, content={"error": "Favicon not found"})
+@app.get("/static/logo.svg", include_in_schema=False)
+async def logo_svg_endpoint():
+    try:
+        return Response(
+            content=get_svg_bytes(),
+            media_type="image/svg+xml",
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
+    except Exception as e:
+        logger.error(f"Error serving logo.svg: {e}")
+        return JSONResponse(status_code=404, content={"error": "Logo not found"})
+
+
+@app.get("/static/logo.png", include_in_schema=False)
+@app.get("/logo.png", include_in_schema=False)
+async def logo_png_endpoint():
+    try:
+        return Response(
+            content=get_png_bytes(),
+            media_type="image/png",
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
+    except Exception as e:
+        logger.error(f"Error serving logo.png: {e}")
+        return JSONResponse(status_code=404, content={"error": "Logo not found"})
 
 
 @app.get("/health")
