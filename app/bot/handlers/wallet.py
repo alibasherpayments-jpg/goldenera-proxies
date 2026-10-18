@@ -32,6 +32,7 @@ async def show_wallet(callback: CallbackQuery):
 
         acc_id = user.account_id or str(user.telegram_id)
         balance_usd = f"{wallet.balance:.2f}"
+        points = int(round(wallet.balance * 100))
         deposited = f"{wallet.total_deposited:.2f}"
         spent = f"{wallet.total_spent:.2f}"
 
@@ -40,6 +41,7 @@ async def show_wallet(callback: CallbackQuery):
                 f"💳 *محفظتي وتفاصيل الحساب | My Wallet*\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🆔 *معرّف الحساب (ID):* `{acc_id}`\n"
+                f"🎯 *النقاط:* `{points} نقطة`\n"
                 f"💎 *الرصيد المتاح:* `${balance_usd}`\n"
                 f"📈 *إجمالي المشحون:* `${deposited}`\n"
                 f"🛒 *إجمالي المشتريات:* `${spent}`\n"
@@ -51,6 +53,7 @@ async def show_wallet(callback: CallbackQuery):
                 f"💳 *Мой кошелек и аккаунт | My Wallet*\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🆔 *ID аккаунта:* `{acc_id}`\n"
+                f"🎯 *Баллы:* `{points} баллов`\n"
                 f"💎 *Доступный баланс:* `${balance_usd}`\n"
                 f"📈 *Всего пополнено:* `${deposited}`\n"
                 f"🛒 *Всего потрачено:* `${spent}`\n"
@@ -62,6 +65,7 @@ async def show_wallet(callback: CallbackQuery):
                 f"💳 *मेरा वॉलेट और अकाउंट | My Wallet*\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🆔 *अकाउंट आईडी:* `{acc_id}`\n"
+                f"🎯 *पॉइंट्स:* `{points} पॉइंट्स`\n"
                 f"💎 *उपलब्ध बैलेंस:* `${balance_usd}`\n"
                 f"📈 *कुल जमा:* `${deposited}`\n"
                 f"🛒 *कुल खर्च:* `${spent}`\n"
@@ -73,6 +77,7 @@ async def show_wallet(callback: CallbackQuery):
                 f"💳 *My Wallet & Account Profile*\n"
                 f"━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🆔 *Account ID:* `{acc_id}`\n"
+                f"🎯 *Points:* `{points} pts`\n"
                 f"💎 *Available Balance:* `${balance_usd}`\n"
                 f"📈 *Total Deposited:* `${deposited}`\n"
                 f"🛒 *Total Spent:* `${spent}`\n"

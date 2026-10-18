@@ -90,6 +90,7 @@ USERS_HTML = """<!DOCTYPE html>
               <th>Telegram ID</th>
               <th>Username</th>
               <th>Language</th>
+              <th>Points</th>
               <th>Balance (USD)</th>
               <th>Total Spent</th>
               <th>Joined Date</th>
@@ -97,7 +98,7 @@ USERS_HTML = """<!DOCTYPE html>
             </tr>
           </thead>
           <tbody id="users-body">
-            <tr><td colspan="8" style="text-align: center; color: #71717a; padding: 2rem;">Loading users...</td></tr>
+            <tr><td colspan="9" style="text-align: center; color: #71717a; padding: 2rem;">Loading users...</td></tr>
           </tbody>
         </table>
       </div>
@@ -137,7 +138,7 @@ USERS_HTML = """<!DOCTYPE html>
     function renderUsers(users) {
       const tbody = document.getElementById('users-body');
       if (!users || users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #71717a; padding: 2rem;">No users found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #71717a; padding: 2rem;">No users found.</td></tr>';
         return;
       }
       tbody.innerHTML = users.map(u => `
@@ -146,6 +147,7 @@ USERS_HTML = """<!DOCTYPE html>
           <td style="font-family: 'JetBrains Mono', monospace; color: #a1a1aa;">${u.telegram_id}</td>
           <td><strong>${u.username ? '@' + u.username : (u.first_name || '—')}</strong></td>
           <td><span style="text-transform: uppercase; font-size: 0.75rem; font-weight: 600; color: #10b981;">${u.language || 'ar'}</span></td>
+          <td><span style="font-weight: 700; color: #f59e0b; font-family: monospace; background: rgba(245, 158, 11, 0.1); padding: 4px 8px; border-radius: 6px;">⭐ ${u.points !== undefined ? u.points : Math.round((u.balance || 0) * 100)} pts</span></td>
           <td style="font-weight: 700; color: #10b981; font-family: monospace;">$${(u.balance || 0).toFixed(2)}</td>
           <td style="color: #71717a; font-family: monospace;">$${(u.total_spent || 0).toFixed(2)}</td>
           <td style="color: #71717a; font-size: 0.8rem;">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>

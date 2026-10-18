@@ -193,52 +193,28 @@ _translations: Dict[str, Dict[str, str]] = {
     },
     "deposit_binance_instructions": {
         "ar": (
-            "🟡 **الإيداع عبر Binance Pay / Binance ID**\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n"
-            "1️⃣ افتح تطبيق **Binance** واضغط على أيقونة **Pay** (أو إرسال Send).\n\n"
-            "2️⃣ اختر الإرسال عبر **Binance ID** (أو Pay ID) وأدخل المعرّف التالي:\n"
-            "🆔 Binance ID: `{binance_id}`\n"
-            "_(اضغط على الرقم لنسخه فوراً)_\n\n"
-            "3️⃣ حدد العملة **USDT** وأدخل المبلغ الذي ترغب بشحنه وأكمل التحويل.\n\n"
-            "4️⃣ بعد إتمام التحويل، انسخ **رقم المعاملة / رقم الطلب (Order ID / TXID)** وأرسله هنا مباشرة.\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n"
-            "⚡️ سيتم التحقق من العملية واعتماد الرصيد فوراً!"
+            "🟡 أرسل عبر Binance Pay على هذا الـ ID:\n"
+            "`{binance_id}`\n"
+            "(اضغط لنسخ الـ ID)\n\n"
+            "وبعد التحويل أرسل الـ TXID هنا 👇"
         ),
         "en": (
-            "🟡 **Deposit via Binance Pay / Binance ID**\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n"
-            "1️⃣ Open **Binance App** and tap **Pay** (or Send).\n\n"
-            "2️⃣ Choose **Binance ID** (or Pay ID) and enter the following ID:\n"
-            "🆔 Binance ID: `{binance_id}`\n"
-            "_(Tap to copy instantly)_\n\n"
-            "3️⃣ Select **USDT**, enter the amount you wish to deposit, and complete the transfer.\n\n"
-            "4️⃣ After payment, copy the **Order ID / Transaction ID (TXID)** and send it here.\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n"
-            "⚡️ Your transaction will be verified and credited instantly!"
+            "🟡 Send via Binance Pay to this ID:\n"
+            "`{binance_id}`\n"
+            "(Tap to copy ID)\n\n"
+            "After transfer, send your TXID here 👇"
         ),
         "ru": (
-            "🟡 **Пополнение через Binance Pay / Binance ID**\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n"
-            "1️⃣ Откройте приложение **Binance** и перейдите в **Pay** (или Отправить).\n\n"
-            "2️⃣ Выберите перевод по **Binance ID** и введите следующий ID:\n"
-            "🆔 Binance ID: `{binance_id}`\n"
-            "_(Нажмите для копирования)_\n\n"
-            "3️⃣ Выберите **USDT**, укажите сумму и подтвердите перевод.\n\n"
-            "4️⃣ После завершения скопируйте **Order ID / Transaction ID (TXID)** и отправьте сюда.\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n"
-            "⚡️ Транзакция будет проверена, и баланс зачислен!"
+            "🟡 Отправьте через Binance Pay на этот ID:\n"
+            "`{binance_id}`\n"
+            "(Нажмите для копирования ID)\n\n"
+            "После перевода отправьте ваш TXID сюда 👇"
         ),
         "hi": (
-            "🟡 **Binance Pay / Binance ID के माध्यम से जमा करें**\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n"
-            "1️⃣ **Binance ऐप** खोलें और **Pay** (या Send) पर टैप करें।\n\n"
-            "2️⃣ **Binance ID** चुनें और यह आईडी दर्ज करें:\n"
-            "🆔 Binance ID: `{binance_id}`\n"
-            "_(कॉपी करने के लिए टैप करें)_\n\n"
-            "3️⃣ **USDT** चुनें, राशि दर्ज करें और भुगतान पूरा करें।\n\n"
-            "4️⃣ ट्रांसफर के बाद, **Order ID / Transaction ID (TXID)** कॉपी करके यहाँ भेजें।\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n"
-            "⚡️ आपका लेनदेन सत्यापित किया जाएगा और तुरंत बैलेंस जोड़ा जाएगा!"
+            "🟡 इस ID पर Binance Pay के माध्यम से भेजें:\n"
+            "`{binance_id}`\n"
+            "(ID कॉपी करने के लिए टैप करें)\n\n"
+            "ट्रांसफर के बाद, अपना TXID यहाँ भेजें 👇"
         ),
     },
     "deposit_enter_txid": {
@@ -266,16 +242,60 @@ _translations: Dict[str, Dict[str, str]] = {
         "hi": "🔍 Binance Pay लेनदेन सत्यापित हो रहा है...",
     },
     "deposit_binance_success": {
-        "ar": "✅ **تم شحن محفظتك بنجاح!**\n\n💵 المبلغ المضاف: `${amount}`\n💼 رصيدك الحالي: `${balance}`\n\nشكراً لك! يمكنك الآن شراء البروكسيات مباشرة 🚀",
-        "en": "✅ **Wallet credited successfully!**\n\n💵 Amount added: `${amount}`\n💼 Current balance: `${balance}`\n\nThank you! You can now purchase proxies immediately 🚀",
-        "ru": "✅ **Кошелёк успешно пополнен!**\n\n💵 Добавлено: `${amount}`\n💼 Ваш баланс: `${balance}`\n\nСпасибо! Теперь вы можете покупать прокси 🚀",
-        "hi": "✅ **वॉलेट सफलतापूर्वक रिचार्ज हो गया!**\n\n💵 जोड़ी गई राशि: `${amount}`\n💼 आपका बैलेंस: `${balance}`\n\nधन्यवाद! अब आप प्रॉक्सी खरीद सकते हैं 🚀",
+        "ar": (
+            "✅ **تم شحن النقاط بنجاح!**\n\n"
+            "💵 المبلغ المستلم: `${amount}`\n"
+            "🎯 النقاط المضافة: `+{points}` نقطة\n"
+            "💎 رصيد محفظتك الحالي: `{points_total}` نقطة (${balance})\n\n"
+            "شكراً لك! يمكنك الآن شراء البروكسيات مباشرة 🚀"
+        ),
+        "en": (
+            "✅ **Points credited successfully!**\n\n"
+            "💵 Received Amount: `${amount}`\n"
+            "🎯 Points Added: `+{points}` pts\n"
+            "💎 Current Balance: `{points_total}` pts (${balance})\n\n"
+            "Thank you! You can now purchase proxies immediately 🚀"
+        ),
+        "ru": (
+            "✅ **Баллы успешно начислены!**\n\n"
+            "💵 Получено: `${amount}`\n"
+            "🎯 Начислено: `+{points}` баллов\n"
+            "💎 Ваш баланс: `{points_total}` баллов (${balance})\n\n"
+            "Спасибо! Теперь вы можете покупать прокси 🚀"
+        ),
+        "hi": (
+            "✅ **पॉइंट्स सफलतापूर्वक जोड़ दिए गए!**\n\n"
+            "💵 प्राप्त राशि: `${amount}`\n"
+            "🎯 जोड़े गए पॉइंट्स: `+{points}`\n"
+            "💎 वर्तमान बैलेंस: `{points_total}` पॉइंट्स (${balance})\n\n"
+            "धन्यवाद! अब आप प्रॉक्सी खरीद सकते हैं 🚀"
+        ),
     },
     "deposit_binance_pending": {
-        "ar": "✅ **تم استلام بيانات الإيداع بنجاح!**\n\n📋 رقم المعاملة: `{txid}`\n💵 المبلغ: `${amount}`\n\n⏳ جاري مراجعة التحويل واعتماد الرصيد فوراً في حسابك.",
-        "en": "✅ **Deposit submitted successfully!**\n\n📋 TXID / Order ID: `{txid}`\n💵 Amount: `${amount}`\n\n⏳ Your transaction is under review and will be approved shortly.",
-        "ru": "✅ **Заявка на пополнение принята!**\n\n📋 TXID / Order ID: `{txid}`\n💵 Сумма: `${amount}`\n\n⏳ Транзакция проверяется и баланс будет начислен в ближайшее время.",
-        "hi": "✅ **जमा विवरण सफलतापूर्वक प्राप्त हुआ!**\n\n📋 TXID / Order ID: `{txid}`\n💵 राशि: `${amount}`\n\n⏳ लेनदेन की समीक्षा की जा रही है और जल्द ही राशि जोड़ दी जाएगी।",
+        "ar": (
+            "✅ **تم استلام بيانات الإيداع بنجاح!**\n\n"
+            "📋 رقم المعاملة: `{txid}`\n"
+            "💵 المبلغ: `${amount}` (`{points}` نقطة)\n\n"
+            "⏳ جاري مراجعة التحويل واعتماد النقاط فوراً في حسابك."
+        ),
+        "en": (
+            "✅ **Deposit submitted successfully!**\n\n"
+            "📋 TXID / Order ID: `{txid}`\n"
+            "💵 Amount: `${amount}` (`{points}` pts)\n\n"
+            "⏳ Your transaction is under review and points will be credited shortly."
+        ),
+        "ru": (
+            "✅ **Заявка на пополнение принята!**\n\n"
+            "📋 TXID / Order ID: `{txid}`\n"
+            "💵 Сумма: `${amount}` (`{points}` баллов)\n\n"
+            "⏳ Транзакция проверяется и баллы будут начислены в ближайшее время."
+        ),
+        "hi": (
+            "✅ **जमा विवरण सफलतापूर्वक प्राप्त हुआ!**\n\n"
+            "📋 TXID / Order ID: `{txid}`\n"
+            "💵 राशि: `${amount}` (`{points}` पॉइंट्स)\n\n"
+            "⏳ लेनदेन की समीक्षा की जा रही है और जल्द ही पॉइंट्स जोड़ दिए जाएंगे।"
+        ),
     },
     "deposit_binance_not_found": {
         "ar": "⏳ لم يتم العثور على العملية في حساب Binance بعد.\n\nيرجى التأكد من إدخال **رقم الطلب (Order ID)** الموضح في إيصال Binance Pay، أو انتظر دقيقة وأعد المحاولة.",

@@ -151,6 +151,7 @@ async def fsm_binance_txid(message: Message, state: FSMContext) -> None:
     # Case 1: Verified automatically via Binance Pay API or TronScan
     if result.get("valid") and result.get("confirmed"):
         amount_usd: float = float(result.get("amount_usd", 0.0))
+        points: int = int(round(amount_usd * 100))
         async with AsyncSessionLocal() as session:
             dup = await session.execute(select(Deposit).where(Deposit.txid == txid))
             if dup.scalar_one_or_none():
@@ -184,12 +185,15 @@ async def fsm_binance_txid(message: Message, state: FSMContext) -> None:
             await session.commit()
             await session.refresh(wallet)
 
+        points_total = int(round(wallet.balance * 100))
         await verifying_msg.edit_text(
             text=t(
                 "deposit_binance_success",
                 lang,
                 amount=f"{amount_usd:.2f}",
+                points=points,
                 balance=f"{wallet.balance:.2f}",
+                points_total=points_total,
             ),
             parse_mode="Markdown",
             reply_markup=reply_main_menu_kb(lang),
@@ -246,8 +250,9 @@ async def fsm_binance_amount(message: Message, state: FSMContext) -> None:
         session.add(deposit)
         await session.commit()
 
+    points = int(round(amount_usd * 100))
     await message.answer(
-        t("deposit_binance_pending", lang, txid=txid, amount=f"{amount_usd:.2f}"),
+        t("deposit_binance_pending", lang, txid=txid, amount=f"{amount_usd:.2f}", points=points),
         parse_mode="Markdown",
         reply_markup=reply_main_menu_kb(lang),
     )

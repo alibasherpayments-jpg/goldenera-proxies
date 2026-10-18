@@ -72,10 +72,11 @@ async def verify_binance_pay_txid(txid: str) -> dict:
             "confirmed": False,
         }
 
-    clean_txid = txid.strip()
+    clean_txid = txid.strip().lstrip("#").strip()
     timestamp = int(time.time() * 1000)
     params = {
         "timestamp": timestamp,
+        "recvWindow": 60000,
         "limit": 100,
     }
     query_string = urllib.parse.urlencode(params)
@@ -119,13 +120,27 @@ async def verify_binance_pay_txid(txid: str) -> dict:
         data_list = []
 
     for item in data_list:
-        t_id = str(item.get("transactionId") or "")
-        o_id = str(item.get("orderId") or "")
-        
-        if clean_txid in (t_id, o_id) or (t_id and t_id == clean_txid) or (o_id and o_id == clean_txid):
+        t_id = str(item.get("transactionId") or "").strip()
+        o_id = str(item.get("orderId") or "").strip()
+
+        matches = False
+        if clean_txid.lower() in (t_id.lower(), o_id.lower()):
+            matches = True
+        elif t_id and clean_txid.lower() == t_id.lower():
+            matches = True
+        elif o_id and clean_txid.lower() == o_id.lower():
+            matches = True
+
+        if matches:
             amount = float(item.get("amount", 0) or 0)
             currency = str(item.get("currency", "")).upper()
-            if currency == "USDT" and amount > 0:
+            funds = item.get("fundsDetail")
+            if not currency and isinstance(funds, list) and funds:
+                currency = str(funds[0].get("currency", "")).upper()
+            if amount <= 0 and isinstance(funds, list) and funds:
+                amount = float(funds[0].get("amount", 0) or 0)
+
+            if (currency == "USDT" or not currency) and amount > 0:
                 return {
                     "valid": True,
                     "amount_usd": round(amount, 2),

@@ -161,6 +161,7 @@ async def list_users(
                     "is_banned": u.is_banned,
                     "is_admin": u.is_admin,
                     "balance": round(u.wallet.balance if u.wallet else 0.0, 2),
+                    "points": int(round((u.wallet.balance if u.wallet else 0.0) * 100)),
                     "total_deposited": round(u.wallet.total_deposited if u.wallet else 0.0, 2),
                     "total_spent": round(u.wallet.total_spent if u.wallet else 0.0, 2),
                     "created_at": u.created_at.isoformat() if u.created_at else None,
@@ -460,13 +461,18 @@ async def approve_deposit(deposit_id: int, admin=Depends(get_current_admin)):
         if deposit.user:
             try:
                 from app.bot.instance import bot
+                points = int(round(deposit.amount_usd * 100))
+                total_pts = int(round((deposit.user.wallet.balance if deposit.user.wallet else 0.0) * 100))
+                bal_usd = f"{deposit.user.wallet.balance:.2f}" if deposit.user.wallet else "0.00"
                 await bot.send_message(
                     chat_id=deposit.user.telegram_id,
                     text=(
-                        f"✅ <b>تم قبول إيداعك</b>\n\n"
+                        f"✅ <b>تم قبول إيداعك بنجاح!</b>\n\n"
                         f"💰 المبلغ: <b>${deposit.amount_usd:.2f}</b>\n"
+                        f"🎯 النقاط المضافة: <b>+{points} نقطة</b>\n"
+                        f"💎 رصيد محفظتك: <b>{total_pts} نقطة (${bal_usd})</b>\n"
                         f"📋 المعرّف: <code>{deposit.txid}</code>\n\n"
-                        f"رصيدك تم تحديثه. شكراً لك! 🎉"
+                        f"شكراً لك! يمكنك الآن شراء البروكسيات مباشرة 🎉"
                     ),
                     parse_mode="HTML",
                 )

@@ -99,13 +99,14 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
     lang = user.language or "ar"
     acc_id = user.account_id or str(user.telegram_id)
     balance_usd = f"{wallet.balance:.2f}"
+    points = int(round(wallet.balance * 100))
 
     if lang == "ar":
         return (
             f"⚡️ *أهلاً بك في جولدن إيرا | GOLDENERA 5G*\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *معرّف الحساب:* `{acc_id}`\n"
-            f"💎 *الرصيد المتاح:* `${balance_usd}`\n"
+            f"🎯 *النقاط:* `{points} نقطة` (${balance_usd})\n"
             f"🌐 *اللغة الحالية:* 🇸🇦 العربية\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🚀 *أقوى وأسرع بروكسيات 5G وسكنية نقية 100%*\n"
@@ -119,7 +120,7 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
             f"⚡️ *Добро пожаловать в GOLDENERA 5G*\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *ID аккаунта:* `{acc_id}`\n"
-            f"💎 *Баланс:* `${balance_usd}`\n"
+            f"🎯 *Баллы:* `{points} баллов` (${balance_usd})\n"
             f"🌐 *Язык:* 🇷🇺 Русский\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🚀 *Быстрые мобильные 5G и резидентские прокси*\n"
@@ -133,7 +134,7 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
             f"⚡️ *GoldenEra 5G प्रॉक्सी में आपका स्वागत है*\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *अकाउंट आईडी:* `{acc_id}`\n"
-            f"💎 *बैलेंस:* `${balance_usd}`\n"
+            f"🎯 *पॉइंट्स:* `{points} पॉइंट्स` (${balance_usd})\n"
             f"🌐 *भाषा:* 🇮🇳 हिन्दी\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🚀 *हाई-स्पीड 5G और रेसिडेंशियल प्रॉक्सी*\n"
@@ -147,7 +148,7 @@ def _build_welcome(user: User, wallet: Wallet) -> str:
             f"⚡️ *WELCOME TO GOLDENERA 5G PROXIES*\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 *Account ID:* `{acc_id}`\n"
-            f"💎 *Balance:* `${balance_usd}`\n"
+            f"🎯 *Points:* `{points} pts` (${balance_usd})\n"
             f"🌐 *Language:* 🇬🇧 English\n"
             f"━━━━━━━━━━━━━━━━━━━━━\n"
             f"🚀 *Fastest 5G Mobile & Residential Proxies*\n"
