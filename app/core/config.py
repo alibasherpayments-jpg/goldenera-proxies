@@ -10,11 +10,25 @@ class Settings(BaseSettings):
     ADMIN_CHAT_IDS: str = ""
 
     # ── Magnum API
-    MAGNUM_API_KEY: str
+    MAGNUM_API_KEY: str = ""
     MAGNUM_BASE_URL: str = "https://api.magnumproxy.com"
 
     # ── Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./goldenera.db"
+
+    @field_validator("DATABASE_URL", mode="before")
+    def assemble_db_connection(cls, v: str) -> str:
+        if not v:
+            return "sqlite+aiosqlite:///./goldenera.db"
+        if v.startswith("postgres://"):
+            v = v.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif v.startswith("postgresql://") and not v.startswith("postgresql+asyncpg://"):
+            v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        if "postgresql+asyncpg://" in v and "?" in v:
+            base, qs = v.split("?", 1)
+            params = [p for p in qs.split("&") if not p.startswith("sslmode=")]
+            v = base + ("?" + "&".join(params) if params else "")
+        return v
 
     # ── Dashboard Auth
     DASHBOARD_SECRET_KEY: str = secrets.token_hex(32)

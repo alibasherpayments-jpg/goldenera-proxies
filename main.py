@@ -97,9 +97,29 @@ async def health():
 # Webhook endpoint (production)
 @app.post("/webhook")
 async def webhook(update: dict):
-    telegram_update = Update.model_validate(update)
-    await dp.feed_update(bot=bot, update=telegram_update)
+    try:
+        telegram_update = Update.model_validate(update)
+        await dp.feed_update(bot=bot, update=telegram_update)
+    except Exception as e:
+        logger.error(f"Webhook update error: {e}")
     return {"ok": True}
+
+
+@app.get("/set-webhook")
+async def set_webhook_endpoint(url: str = None):
+    target = url or settings.WEBHOOK_BASE_URL
+    if not target:
+        return {"error": "Target URL required. Pass ?url=https://your-domain.vercel.app or set WEBHOOK_BASE_URL"}
+    target_clean = target.rstrip("/") + "/webhook"
+    res = await bot.set_webhook(target_clean, drop_pending_updates=True)
+    info = await bot.get_webhook_info()
+    return {"success": res, "url": target_clean, "webhook_info": info.model_dump()}
+
+
+@app.get("/webhook-info")
+async def webhook_info():
+    info = await bot.get_webhook_info()
+    return info.model_dump()
 
 
 # ── Polling helper (development only) ─────────────
