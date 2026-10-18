@@ -1,0 +1,22 @@
+GoldenEra - 5G Proxies
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.venv/
+env/
+venv/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.DS_Store
+Thumbs.db
+*.log
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/

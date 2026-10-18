@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: goldenera-proxies-bot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: PORT
+        value: 8000
+      - key: BOT_TOKEN
+        sync: false
+      - key: MAGNUM_API_KEY
+        sync: false
+      - key: DASHBOARD_SECRET_KEY
+        sync: false
+      - key: DASHBOARD_USERNAME
+        sync: false
+      - key: DASHBOARD_PASSWORD
+        sync: false
+      - key: ADMIN_CHAT_IDS
+        sync: false
+      - key: BINANCE_WALLET_ADDRESS
+        sync: false
+      - key: VODAFONE_CASH_NUMBER
+        sync: false
+      - key: WEBHOOK_BASE_URL
+        sync: false
