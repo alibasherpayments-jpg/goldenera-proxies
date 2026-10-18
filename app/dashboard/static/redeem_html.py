@@ -152,14 +152,14 @@ REDEEM_HTML = """<!DOCTYPE html>
             <div class="field-group">
               <label class="field-label">Reward Type / Category</label>
               <select id="codeType" class="select-field" onchange="toggleBonusFields()">
-                <option value="balance">💰 Direct Balance / Points (رصيد مباشر)</option>
+                <option value="balance">💰 Direct Balance (رصيد مباشر في المحفظة)</option>
                 <option value="deposit_bonus">🚀 Deposit Bonus (عرض عند الإيداع - مثلاً إيداع 1$ والحصول على 0.5$)</option>
               </select>
             </div>
 
             <div class="field-group">
               <label class="field-label" id="rewardLabel">Reward Value ($ USD)</label>
-              <input type="number" step="0.01" min="0.01" id="rewardAmount" class="input-field" placeholder="e.g. 0.50 (50 points)" required>
+              <input type="number" step="0.01" min="0.01" id="rewardAmount" class="input-field" placeholder="e.g. 0.50 or 5.00" required>
             </div>
 
             <div class="field-group" id="minDepositGroup" style="display: none;">
