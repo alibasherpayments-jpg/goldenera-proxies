@@ -6,6 +6,7 @@ import random
 import time
 from aiogram import Router, F
 from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
@@ -480,7 +481,10 @@ async def handle_reply_language(message: Message) -> None:
 # ─── Ongoing Inline Callbacks ─────────────────────────────────────────────────
 
 @router.callback_query(F.data == "menu:main")
-async def cb_menu_main(callback: CallbackQuery) -> None:
+async def cb_menu_main(callback: CallbackQuery, state: FSMContext = None) -> None:
+    if state:
+        await state.clear()
+
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(User).where(User.telegram_id == callback.from_user.id)
@@ -501,10 +505,17 @@ async def cb_menu_main(callback: CallbackQuery) -> None:
                 await session.commit()
                 await session.refresh(wallet)
 
-    await callback.message.edit_text(
-        text=_build_welcome(user, wallet),
-        parse_mode="Markdown",
-    )
+    try:
+        await callback.message.edit_text(
+            text=_build_welcome(user, wallet),
+            parse_mode="Markdown",
+        )
+    except Exception:
+        await callback.message.answer(
+            text=_build_welcome(user, wallet),
+            parse_mode="Markdown",
+            reply_markup=reply_main_menu_kb(user.language),
+        )
     await callback.answer()
 
 

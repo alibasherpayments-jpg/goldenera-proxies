@@ -24,7 +24,6 @@ from app.bot.keyboards.main import (
     deposit_methods_kb,
     back_kb,
     admin_deposit_approve_kb,
-    main_menu_kb,
     reply_main_menu_kb,
 )
 from app.services.binance_service import (
@@ -237,7 +236,6 @@ async def fsm_binance_txid(message: Message, state: FSMContext) -> None:
                     points_total=points_total,
                 ),
                 parse_mode="Markdown",
-                reply_markup=main_menu_kb(lang),
             )
         except Exception as e:
             logger.error("Error editing verifying message on success: %s", e)
@@ -251,7 +249,7 @@ async def fsm_binance_txid(message: Message, state: FSMContext) -> None:
                     points_total=points_total,
                 ),
                 parse_mode="Markdown",
-                reply_markup=main_menu_kb(lang),
+                reply_markup=reply_main_menu_kb(lang),
             )
         await state.clear()
         return
@@ -379,7 +377,7 @@ async def fsm_vf_amount(message: Message, state: FSMContext, bot: Bot) -> None:
             points=points,
         ),
         parse_mode="Markdown",
-        reply_markup=main_menu_kb(lang),
+        reply_markup=reply_main_menu_kb(lang),
     )
     await state.clear()
 
@@ -493,7 +491,7 @@ async def cb_admin_approve(callback: CallbackQuery, bot: Bot) -> None:
                     balance=f"{wallet.balance:.2f}",
                 ),
                 parse_mode="Markdown",
-                reply_markup=main_menu_kb(user_lang),
+                reply_markup=reply_main_menu_kb(user_lang),
             )
         except Exception as exc:
             logger.error("Failed to notify depositing user: %s", exc)
@@ -552,7 +550,7 @@ async def cb_admin_reject(callback: CallbackQuery, bot: Bot) -> None:
                 chat_id=depositing_user.telegram_id,
                 text=t("deposit_vf_rejected", user_lang),
                 parse_mode="Markdown",
-                reply_markup=main_menu_kb(user_lang),
+                reply_markup=reply_main_menu_kb(user_lang),
             )
         except Exception as exc:
             logger.error("Failed to notify depositing user of rejection: %s", exc)

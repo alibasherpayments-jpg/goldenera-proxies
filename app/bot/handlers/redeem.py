@@ -15,7 +15,7 @@ from app.models.user import User
 from app.bot.i18n import t
 from app.bot.keyboards.main import (
     back_kb,
-    main_menu_kb,
+    reply_main_menu_kb,
     ALL_REDEEM_TEXTS,
 )
 from app.services.redeem_service import redeem_code_by_user
@@ -99,7 +99,7 @@ async def fsm_redeem_code(message: Message, state: FSMContext) -> None:
                 min_deposit=f"{res['min_deposit']:.2f}",
             )
 
-        await message.answer(text=msg, parse_mode="Markdown", reply_markup=main_menu_kb(lang))
+        await message.answer(text=msg, parse_mode="Markdown", reply_markup=reply_main_menu_kb(lang))
         return
 
     # Error handling
@@ -117,4 +117,4 @@ async def fsm_redeem_code(message: Message, state: FSMContext) -> None:
     else:
         err_msg = t("redeem_err_not_found", lang)
 
-    await message.answer(text=err_msg, parse_mode="Markdown")
+    await message.answer(text=err_msg, parse_mode="Markdown", reply_markup=reply_main_menu_kb(lang))

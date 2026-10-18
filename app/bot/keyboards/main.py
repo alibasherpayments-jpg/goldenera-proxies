@@ -94,24 +94,9 @@ def reply_main_menu_kb(lang: str) -> ReplyKeyboardMarkup:
     )
 
 
-def main_menu_kb(lang: str) -> InlineKeyboardMarkup:
-    """Main menu with options arranged in a 2-column grid."""
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text=t("menu_buy", lang), callback_data="menu:buy"),
-                InlineKeyboardButton(text=t("menu_my_proxies", lang), callback_data="menu:my_proxies"),
-            ],
-            [
-                InlineKeyboardButton(text=t("menu_deposit", lang), callback_data="deposit:main"),
-                InlineKeyboardButton(text=t("menu_wallet", lang), callback_data="menu:wallet"),
-            ],
-            [
-                InlineKeyboardButton(text=t("menu_redeem", lang), callback_data="redeem:enter"),
-                InlineKeyboardButton(text=t("menu_support", lang), url=SUPPORT_URL),
-            ],
-        ]
-    )
+def main_menu_kb(lang: str) -> ReplyKeyboardMarkup:
+    """Safe fallback: returns the persistent bottom Reply Keyboard instead of inline cards."""
+    return reply_main_menu_kb(lang)
 
 
 def initial_language_kb() -> InlineKeyboardMarkup:
