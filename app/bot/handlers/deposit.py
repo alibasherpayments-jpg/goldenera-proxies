@@ -41,9 +41,8 @@ class BinanceDeposit(StatesGroup):
 
 
 class DepositVF(StatesGroup):
-    waiting_amount = State()
-    waiting_phone = State()
     waiting_txid = State()
+    waiting_amount = State()
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -77,6 +76,21 @@ async def _get_egp_rate() -> float:
             except ValueError:
                 pass
     return settings.USD_TO_EGP_RATE
+
+
+async def _get_vodafone_number() -> str:
+    """Read Vodafone Cash number dynamically from SystemSetting or fallback to config."""
+    try:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(
+                select(SystemSetting).where(SystemSetting.key == "vodafone_cash_number")
+            )
+            setting = result.scalar_one_or_none()
+            if setting and setting.value and setting.value.strip():
+                return setting.value.strip()
+    except Exception as e:
+        logger.warning("Could not read vodafone_cash_number: %s", e)
+    return getattr(settings, "VODAFONE_CASH_NUMBER", "") or "010xxxxxxxx"
 
 
 # ─── deposit:main ─────────────────────────────────────────────────────────────
@@ -185,27 +199,50 @@ async def fsm_binance_txid(message: Message, state: FSMContext) -> None:
             await session.refresh(wallet)
 
         points_total = int(round(wallet.balance * 100))
-        await verifying_msg.edit_text(
-            text=t(
-                "deposit_binance_success",
-                lang,
-                amount=f"{amount_usd:.2f}",
-                points=points,
-                balance=f"{wallet.balance:.2f}",
-                points_total=points_total,
-            ),
-            parse_mode="Markdown",
-            reply_markup=reply_main_menu_kb(lang),
-        )
+        try:
+            await verifying_msg.edit_text(
+                text=t(
+                    "deposit_binance_success",
+                    lang,
+                    amount=f"{amount_usd:.2f}",
+                    points=points,
+                    balance=f"{wallet.balance:.2f}",
+                    points_total=points_total,
+                ),
+                parse_mode="Markdown",
+                reply_markup=main_menu_kb(lang),
+            )
+        except Exception as e:
+            logger.error("Error editing verifying message on success: %s", e)
+            await message.answer(
+                t(
+                    "deposit_binance_success",
+                    lang,
+                    amount=f"{amount_usd:.2f}",
+                    points=points,
+                    balance=f"{wallet.balance:.2f}",
+                    points_total=points_total,
+                ),
+                parse_mode="Markdown",
+                reply_markup=main_menu_kb(lang),
+            )
         await state.clear()
         return
 
     # Case 2: Not verified / not found in transaction history (do NOT ask for amount)
-    await verifying_msg.edit_text(
-        t("deposit_binance_not_found", lang),
-        parse_mode="Markdown",
-        reply_markup=reply_main_menu_kb(lang),
-    )
+    try:
+        await verifying_msg.edit_text(
+            t("deposit_binance_not_found", lang),
+            parse_mode="Markdown",
+            reply_markup=back_kb(lang),
+        )
+    except Exception as e:
+        logger.error("Error editing verifying message on not found: %s", e)
+        await message.answer(
+            t("deposit_binance_not_found", lang),
+            parse_mode="Markdown",
+            reply_markup=back_kb(lang),
+        )
     await state.clear()
 
 
@@ -216,65 +253,29 @@ async def cb_deposit_vf(callback: CallbackQuery, state: FSMContext) -> None:
     user, _wallet = await _get_user_and_wallet(callback.from_user.id)
     lang = user.language if user else "ar"
     rate = await _get_egp_rate()
+    vodafone_number = await _get_vodafone_number()
 
     await callback.message.edit_text(
         text=t(
             "deposit_vodafone_instructions",
             lang,
-            vodafone_number=settings.VODAFONE_CASH_NUMBER or "N/A",
+            vodafone_number=vodafone_number,
             rate=f"{rate:.2f}",
         ),
         parse_mode="Markdown",
         reply_markup=back_kb(lang),
     )
-    await state.set_state(DepositVF.waiting_amount)
-    await state.update_data(lang=lang, rate=rate)
+    await state.set_state(DepositVF.waiting_txid)
+    await state.update_data(lang=lang, rate=rate, vodafone_number=vodafone_number)
     await callback.answer()
 
 
-@router.message(DepositVF.waiting_amount)
-async def fsm_vf_amount(message: Message, state: FSMContext) -> None:
-    data = await state.get_data()
-    lang: str = data.get("lang", "ar")
-
-    raw = message.text.strip() if message.text else ""
-    try:
-        amount_usd = float(raw)
-        if amount_usd <= 0:
-            raise ValueError
-    except ValueError:
-        await message.answer(t("deposit_vf_enter_amount", lang))
-        return
-
-    await state.update_data(amount_usd=amount_usd)
-    await state.set_state(DepositVF.waiting_phone)
-    await message.answer(t("deposit_vf_enter_phone", lang))
-
-
-@router.message(DepositVF.waiting_phone)
-async def fsm_vf_phone(message: Message, state: FSMContext) -> None:
-    data = await state.get_data()
-    lang: str = data.get("lang", "ar")
-
-    phone = message.text.strip() if message.text else ""
-    if not phone:
-        await message.answer(t("deposit_vf_enter_phone", lang))
-        return
-
-    await state.update_data(phone=phone)
-    await state.set_state(DepositVF.waiting_txid)
-    await message.answer(t("deposit_vf_enter_txid", lang))
-
-
 @router.message(DepositVF.waiting_txid)
-async def fsm_vf_txid(message: Message, state: FSMContext, bot: Bot) -> None:
+async def fsm_vf_txid(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
     lang: str = data.get("lang", "ar")
-    amount_usd: float = data.get("amount_usd", 0.0)
-    phone: str = data.get("phone", "")
-    rate: float = data.get("rate", settings.USD_TO_EGP_RATE)
-
     txid = message.text.strip() if message.text else ""
+
     if not txid:
         await message.answer(t("deposit_vf_enter_txid", lang))
         return
@@ -287,6 +288,31 @@ async def fsm_vf_txid(message: Message, state: FSMContext, bot: Bot) -> None:
             await state.clear()
             return
 
+    await state.update_data(txid=txid)
+    await state.set_state(DepositVF.waiting_amount)
+    await message.answer(t("deposit_vf_enter_amount", lang), parse_mode="Markdown")
+
+
+@router.message(DepositVF.waiting_amount)
+async def fsm_vf_amount(message: Message, state: FSMContext, bot: Bot) -> None:
+    data = await state.get_data()
+    lang: str = data.get("lang", "ar")
+    txid: str = data.get("txid", "")
+    rate: float = data.get("rate", settings.USD_TO_EGP_RATE)
+
+    raw = message.text.strip().replace("$", "") if message.text else ""
+    try:
+        amount_usd = float(raw)
+        if amount_usd <= 0:
+            raise ValueError
+    except ValueError:
+        await message.answer(t("deposit_vf_enter_amount", lang))
+        return
+
+    amount_egp = round(amount_usd * rate, 2)
+    points = int(round(amount_usd * 100))
+
+    async with AsyncSessionLocal() as session:
         user_result = await session.execute(
             select(User).where(User.telegram_id == message.from_user.id)
         )
@@ -295,14 +321,12 @@ async def fsm_vf_txid(message: Message, state: FSMContext, bot: Bot) -> None:
             await state.clear()
             return
 
-        amount_egp = round(amount_usd * rate, 2)
-
         deposit = Deposit(
             user_id=user.id,
             method="vodafone_cash",
             status="pending",
             txid=txid,
-            sender_phone=phone,
+            sender_phone="—",
             amount_usd=amount_usd,
             amount_local=amount_egp,
             exchange_rate=rate,
@@ -313,7 +337,18 @@ async def fsm_vf_txid(message: Message, state: FSMContext, bot: Bot) -> None:
         deposit_id: int = deposit.id
 
     # Notify user
-    await message.answer(t("deposit_vf_pending", lang), parse_mode="Markdown")
+    await message.answer(
+        t(
+            "deposit_vf_pending",
+            lang,
+            txid=txid,
+            amount=f"{amount_usd:.2f}",
+            amount_egp=f"{amount_egp:.2f}",
+            points=points,
+        ),
+        parse_mode="Markdown",
+        reply_markup=main_menu_kb(lang),
+    )
     await state.clear()
 
     # Notify ALL admins

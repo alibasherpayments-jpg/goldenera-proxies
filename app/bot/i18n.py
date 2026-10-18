@@ -306,43 +306,35 @@ _translations: Dict[str, Dict[str, str]] = {
     "deposit_vodafone_instructions": {
         "ar": (
             "🔴 **الإيداع عبر Vodafone Cash**\n\n"
-            "1️⃣ حوّل المبلغ على رقم:\n"
-            "`{vodafone_number}`\n\n"
-            "2️⃣ أرسل لنا:\n"
-            "• رقمك المحوّل منه\n"
-            "• رقم عملية التحويل (Transaction ID)\n\n"
-            "💱 سعر الصرف: `1$ = {rate} ج.م`\n"
-            "⚡ سيتم اعتماد رصيدك فور موافقة الإدارة."
+            "1️⃣ حوّل المبلغ إلى رقم الكاش التالي:\n"
+            "`{vodafone_number}`\n"
+            "_(اضغط على الرقم لنسخه فوراً)_\n\n"
+            "💱 سعر الصرف: `1$ = {rate} ج.م`\n\n"
+            "2️⃣ بعد إتمام التحويل، أرسل **رقم عملية التحويل (Transaction ID)** هنا 👇"
         ),
         "en": (
             "🔴 **Deposit via Vodafone Cash**\n\n"
-            "1️⃣ Send the amount to:\n"
-            "`{vodafone_number}`\n\n"
-            "2️⃣ Send us:\n"
-            "• Your sender phone number\n"
-            "• Transaction ID\n\n"
-            "💱 Exchange rate: `1$ = {rate} EGP`\n"
-            "⚡ Balance will be credited upon admin approval."
+            "1️⃣ Send the transfer to:\n"
+            "`{vodafone_number}`\n"
+            "_(Tap number to copy)_\n\n"
+            "💱 Current rate: `1$ = {rate} EGP`\n\n"
+            "2️⃣ After payment, send your **Transaction ID** here 👇"
         ),
         "ru": (
             "🔴 **Пополнение через Vodafone Cash**\n\n"
-            "1️⃣ Отправьте сумму на номер:\n"
-            "`{vodafone_number}`\n\n"
-            "2️⃣ Отправьте нам:\n"
-            "• Ваш номер отправителя\n"
-            "• Transaction ID\n\n"
-            "💱 Курс обмена: `1$ = {rate} EGP`\n"
-            "⚡ Баланс будет зачислен после одобрения администратором."
+            "1️⃣ Переведите сумму на номер:\n"
+            "`{vodafone_number}`\n"
+            "_(Нажмите для копирования)_\n\n"
+            "💱 Курс обмена: `1$ = {rate} EGP`\n\n"
+            "2️⃣ После перевода отправьте **Transaction ID** сюда 👇"
         ),
         "hi": (
             "🔴 **Vodafone Cash के माध्यम से जमा करें**\n\n"
             "1️⃣ इस नंबर पर राशि भेजें:\n"
-            "`{vodafone_number}`\n\n"
-            "2️⃣ हमें भेजें:\n"
-            "• आपका भेजने वाला फ़ोन नंबर\n"
-            "• Transaction ID\n\n"
-            "💱 विनिमय दर: `1$ = {rate} EGP`\n"
-            "⚡ व्यवस्थापक की मंजूरी के बाद बैलेंस जमा होगा।"
+            "`{vodafone_number}`\n"
+            "_(कॉपी करने के लिए टैप करें)_\n\n"
+            "💱 विनिमय दर: `1$ = {rate} EGP`\n\n"
+            "2️⃣ ट्रांसफर के बाद, अपना **Transaction ID** यहाँ भेजें 👇"
         ),
     },
     "deposit_vf_enter_phone": {
@@ -352,22 +344,46 @@ _translations: Dict[str, Dict[str, str]] = {
         "hi": "📱 अपना भेजने वाला फ़ोन नंबर दर्ज करें:",
     },
     "deposit_vf_enter_txid": {
-        "ar": "🔢 أدخل رقم عملية التحويل (Transaction ID):",
-        "en": "🔢 Enter the Transaction ID:",
-        "ru": "🔢 Введите Transaction ID:",
-        "hi": "🔢 Transaction ID दर्ज करें:",
+        "ar": "🔢 أرسل الآن رقم عملية التحويل (Transaction ID):",
+        "en": "🔢 Send your Transaction ID now:",
+        "ru": "🔢 Отправьте Transaction ID сейчас:",
+        "hi": "🔢 अपना Transaction ID अभी भेजें:",
     },
     "deposit_vf_enter_amount": {
-        "ar": "💵 أدخل المبلغ المراد شحنه بالدولار (مثال: 10):",
-        "en": "💵 Enter the amount to deposit in USD (e.g. 10):",
-        "ru": "💵 Введите сумму для пополнения в USD (например: 10):",
-        "hi": "💵 USD में जमा राशि दर्ज करें (उदाहरण: 10):",
+        "ar": "💵 يرجى إدخال المبلغ الذي قمت بتحويله بالدولار (USDT $):\n(مثال: `10` أو `25.5`)",
+        "en": "💵 Please enter the amount transferred in USD (USDT $):\n(e.g., `10` or `25.5`)",
+        "ru": "💵 Введите сумму перевода в USD (USDT $):\n(например: `10` или `25.5`)",
+        "hi": "💵 कृपया ट्रांसफर की गई राशि USD में दर्ज करें (USDT $):\n(उदा: `10` या `25.5`)",
     },
     "deposit_vf_pending": {
-        "ar": "✅ تم استلام طلبك!\n\n⏳ طلب الإيداع قيد المراجعة. سيصلك إشعار فور الموافقة.",
-        "en": "✅ Your request received!\n\n⏳ Deposit under review. You'll be notified upon approval.",
-        "ru": "✅ Ваш запрос получен!\n\n⏳ Пополнение на проверке. Вы получите уведомление после одобрения.",
-        "hi": "✅ आपका अनुरोध प्राप्त हुआ!\n\n⏳ जमा की समीक्षा हो रही है। स्वीकृति के बाद आपको सूचित किया जाएगा।",
+        "ar": (
+            "✅ **تم استلام بيانات الإيداع بنجاح!**\n\n"
+            "📋 رقم العملية: `{txid}`\n"
+            "💵 المبلغ: `${amount}` (`{amount_egp}` ج.م)\n"
+            "🎯 النقاط المستحقة: `+{points}` نقطة\n\n"
+            "⏳ طلبك قيد المراجعة وسيتم إضافة النقاط لمحفظتك فور موافقة الإدارة."
+        ),
+        "en": (
+            "✅ **Deposit request received successfully!**\n\n"
+            "📋 Transaction ID: `{txid}`\n"
+            "💵 Amount: `${amount}` (`{amount_egp}` EGP)\n"
+            "🎯 Points to receive: `+{points}` pts\n\n"
+            "⏳ Your request is under review and points will be credited shortly."
+        ),
+        "ru": (
+            "✅ **Заявка на пополнение принята!**\n\n"
+            "📋 Transaction ID: `{txid}`\n"
+            "💵 Сумма: `${amount}` (`{amount_egp}` EGP)\n"
+            "🎯 Будет начислено: `+{points}` баллов\n\n"
+            "⏳ Заявка проверяется и баллы будут начислены в ближайшее время."
+        ),
+        "hi": (
+            "✅ **जमा अनुरोध सफलतापूर्वक प्राप्त हुआ!**\n\n"
+            "📋 Transaction ID: `{txid}`\n"
+            "💵 राशि: `${amount}` (`{amount_egp}` EGP)\n"
+            "🎯 पॉइंट्स: `+{points}`\n\n"
+            "⏳ समीक्षा के बाद जल्द ही पॉइंट्स जोड़ दिए जाएंगे।"
+        ),
     },
     "deposit_vf_approved": {
         "ar": "🎉 **تم قبول إيداعك!**\n\n💵 المبلغ المضاف: `{amount}$`\n💼 رصيدك الآن: `{balance}$`",
