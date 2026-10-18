@@ -41,30 +41,14 @@ dp.include_router(catalog.router)
 
 
 # ── FastAPI Lifespan ───────────────────────────────
-_tables_initialized = False
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _tables_initialized
-    if not _tables_initialized:
-        try:
-            await create_tables()
-            _tables_initialized = True
-            logger.info("✅ Database tables verified.")
-        except Exception as e:
-            logger.warning(f"Database init warning: {e}")
-
     # Polling only in local development
     if not settings.is_production:
         asyncio.create_task(_run_polling())
         logger.info("🔄 Bot running in long-polling mode.")
 
     yield
-
-    # Shutdown
-    logger.info("🛑 Shutting down...")
-    await bot.session.close()
-    await engine.dispose()
 
 
 # ── FastAPI App ────────────────────────────────────

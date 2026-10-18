@@ -12,10 +12,21 @@ elif "postgresql" in settings.DATABASE_URL:
         "server_settings": {"search_path": "goldenera,public"},
     }
 
+engine_kwargs = {
+    "echo": False,
+    "connect_args": connect_args,
+}
+if "postgresql" in settings.DATABASE_URL:
+    engine_kwargs.update({
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "pool_size": 3,
+        "max_overflow": 0,
+    })
+
 engine = create_async_engine(
     settings.DATABASE_URL,
-    echo=False,
-    connect_args=connect_args,
+    **engine_kwargs,
 )
 
 AsyncSessionLocal = async_sessionmaker(
