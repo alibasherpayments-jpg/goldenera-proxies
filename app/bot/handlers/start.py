@@ -364,7 +364,10 @@ async def handle_reply_deposit(message: Message) -> None:
         user = user_res.scalar_one_or_none()
         lang = user.language if user else "ar"
 
-    text = t("deposit_select_method", lang)
+        from app.core.helpers import get_usd_to_egp_rate
+        rate = await get_usd_to_egp_rate(session)
+
+    text = t("deposit_choose_method", lang, rate=f"{rate:.2f}")
     await message.answer(
         text=text,
         parse_mode="Markdown",

@@ -174,22 +174,124 @@ _translations: Dict[str, Dict[str, str]] = {
     #  DEPOSIT
     # ─────────────────────────────────────────
     "deposit_choose_method": {
-        "ar": "💳 **اختر طريقة الشحن**\n\nسعر الصرف الحالي: `1$ = {rate} ج.م`",
-        "en": "💳 **Choose Deposit Method**\n\nCurrent rate: `1$ = {rate} EGP`",
-        "ru": "💳 **Выберите способ пополнения**\n\nТекущий курс: `1$ = {rate} EGP`",
-        "hi": "💳 **जमा करने का तरीका चुनें**\n\nवर्तमान दर: `1$ = {rate} EGP`",
+        "ar": (
+            "💳 *شحن الرصيد والمحفظة | Deposit Methods*\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "اختر وسيلة الدفع المناسبة لشحن حسابك فوراً:\n\n"
+            "🟡 *Binance Pay (ID / USDT)*\n"
+            "• شحن فوري وتلقائي 100%\n"
+            "• `1$` دولار = `100` نقطة\n\n"
+            "🔴 *Vodafone Cash (فودافون كاش)*\n"
+            "• سعر الصرف الحالي: `1$ = {rate} ج.م`\n"
+            "• تحويل بالجنيه المصري واعتماد فوري\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "👇 *اضغط على الطريقة التي تناسبك للمتابعة:*"
+        ),
+        "en": (
+            "💳 *Deposit Funds | Payment Methods*\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "Select your preferred payment method to top up:\n\n"
+            "🟡 *Binance Pay (ID / USDT)*\n"
+            "• Instant 100% automated credit\n"
+            "• `$1.00` USD = `100` points\n\n"
+            "🔴 *Vodafone Cash*\n"
+            "• Current exchange rate: `1$ = {rate} EGP`\n"
+            "• Local Egyptian Pound transfer\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "👇 *Tap a payment method below to proceed:*"
+        ),
+        "ru": (
+            "💳 *Пополнение баланса | Способы оплаты*\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "Выберите удобный способ пополнения кошелька:\n\n"
+            "🟡 *Binance Pay (ID / USDT)*\n"
+            "• Мгновенное автозачисление 100%\n"
+            "• `$1.00` USD = `100` баллов\n\n"
+            "🔴 *Vodafone Cash*\n"
+            "• Текущий курс: `1$ = {rate} EGP`\n"
+            "• Оплата в местной валюте (EGP)\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "👇 *Выберите способ оплаты ниже:*"
+        ),
+        "hi": (
+            "💳 *फंड जमा करें | भुगतान के तरीके*\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "वॉलेट रिचार्ज करने के लिए अपना पसंदीदा तरीका चुनें:\n\n"
+            "🟡 *Binance Pay (ID / USDT)*\n"
+            "• 100% तुरंत और स्वचालित क्रेडिट\n"
+            "• `$1.00` USD = `100` पॉइंट्स\n\n"
+            "🔴 *Vodafone Cash*\n"
+            "• वर्तमान विनिमय दर: `1$ = {rate} EGP`\n"
+            "• स्थानीय मुद्रा (EGP) में भुगतान\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "👇 *आगे बढ़ने के लिए नीचे एक तरीका चुनें:*"
+        ),
+    },
+    "deposit_select_method": {
+        "ar": (
+            "💳 *شحن الرصيد والمحفظة | Deposit Methods*\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "اختر وسيلة الدفع المناسبة لشحن حسابك فوراً:\n\n"
+            "🟡 *Binance Pay (ID / USDT)*\n"
+            "• شحن فوري وتلقائي 100%\n"
+            "• `1$` دولار = `100` نقطة\n\n"
+            "🔴 *Vodafone Cash (فودافون كاش)*\n"
+            "• سعر الصرف الحالي: `1$ = {rate} ج.م`\n"
+            "• تحويل بالجنيه المصري واعتماد فوري\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "👇 *اضغط على الطريقة التي تناسبك للمتابعة:*"
+        ),
+        "en": (
+            "💳 *Deposit Funds | Payment Methods*\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "Select your preferred payment method to top up:\n\n"
+            "🟡 *Binance Pay (ID / USDT)*\n"
+            "• Instant 100% automated credit\n"
+            "• `$1.00` USD = `100` points\n\n"
+            "🔴 *Vodafone Cash*\n"
+            "• Current exchange rate: `1$ = {rate} EGP`\n"
+            "• Local Egyptian Pound transfer\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "👇 *Tap a payment method below to proceed:*"
+        ),
+        "ru": (
+            "💳 *Пополнение баланса | Способы оплаты*\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "Выберите удобный способ пополнения кошелька:\n\n"
+            "🟡 *Binance Pay (ID / USDT)*\n"
+            "• Мгновенное автозачисление 100%\n"
+            "• `$1.00` USD = `100` баллов\n\n"
+            "🔴 *Vodafone Cash*\n"
+            "• Текущий курс: `1$ = {rate} EGP`\n"
+            "• Оплата в местной валюте (EGP)\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "👇 *Выберите способ оплаты ниже:*"
+        ),
+        "hi": (
+            "💳 *फंड जमा करें | भुगतान के तरीके*\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "वॉलेट रिचार्ज करने के लिए अपना पसंदीदा तरीका चुनें:\n\n"
+            "🟡 *Binance Pay (ID / USDT)*\n"
+            "• 100% तुरंत और स्वचालित क्रेडिट\n"
+            "• `$1.00` USD = `100` पॉइंट्स\n\n"
+            "🔴 *Vodafone Cash*\n"
+            "• वर्तमान विनिमय दर: `1$ = {rate} EGP`\n"
+            "• स्थानीय मुद्रा (EGP) में भुगतान\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "👇 *आगे बढ़ने के लिए नीचे एक तरीका चुनें:*"
+        ),
     },
     "deposit_btn_binance": {
-        "ar": "🟡 Binance Pay (ID)",
-        "en": "🟡 Binance Pay (ID)",
-        "ru": "🟡 Binance Pay (ID)",
-        "hi": "🟡 Binance Pay (ID)",
+        "ar": "🟡 Binance Pay (فوري تلقائي)",
+        "en": "🟡 Binance Pay (Instant Auto)",
+        "ru": "🟡 Binance Pay (Мгновенно)",
+        "hi": "🟡 Binance Pay (तुरंत क्रेडिट)",
     },
     "deposit_btn_vodafone": {
-        "ar": "🔴 Vodafone Cash",
-        "en": "🔴 Vodafone Cash",
-        "ru": "🔴 Vodafone Cash",
-        "hi": "🔴 Vodafone Cash",
+        "ar": "🔴 Vodafone Cash (فودافون كاش)",
+        "en": "🔴 Vodafone Cash (EGP)",
+        "ru": "🔴 Vodafone Cash (EGP)",
+        "hi": "🔴 Vodafone Cash (EGP)",
     },
     "deposit_binance_instructions": {
         "ar": (
