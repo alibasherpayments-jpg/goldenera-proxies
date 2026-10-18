@@ -421,7 +421,10 @@ async def handle_reply_wallet(message: Message) -> None:
 
         kb = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text=t("menu_deposit", lang), callback_data="deposit:main")]
+                [
+                    InlineKeyboardButton(text=t("menu_deposit", lang), callback_data="deposit:main"),
+                    InlineKeyboardButton(text=t("menu_redeem", lang), callback_data="redeem:enter"),
+                ]
             ]
         )
         await message.answer(text=text, reply_markup=kb, parse_mode="Markdown")

@@ -647,3 +647,101 @@ async def broadcast_message(body: BroadcastBody, _admin=Depends(get_current_admi
         raise HTTPException(status_code=500, detail="Bot instance not available")
 
     return {"success": True, "sent": sent, "failed": failed, "total": len(telegram_ids)}
+
+
+# ── Redeem Codes API ──────────────────────────────────────────────────────────
+
+class RedeemCodeCreate(BaseModel):
+    code: str
+    code_type: str = "balance"
+    reward_amount: float
+    reward_type: str = "fixed"
+    min_deposit: float = 0.0
+    max_uses: int = 1
+    expires_at: Optional[str] = None
+    note: Optional[str] = None
+
+
+@router.get("/admin/api/redeem/stats")
+async def api_get_redeem_stats(_admin=Depends(get_current_admin)):
+    from app.services.redeem_service import get_redeem_stats
+    return await get_redeem_stats()
+
+
+@router.get("/admin/api/redeem/codes")
+async def api_get_redeem_codes(tab: str = "all", _admin=Depends(get_current_admin)):
+    from app.services.redeem_service import list_redeem_codes
+    return await list_redeem_codes(tab)
+
+
+@router.post("/admin/api/redeem/codes")
+async def api_create_redeem_code(body: RedeemCodeCreate, _admin=Depends(get_current_admin)):
+    code_clean = body.code.strip().upper()
+    if not code_clean:
+        raise HTTPException(status_code=400, detail="Code cannot be empty")
+    if body.reward_amount <= 0:
+        raise HTTPException(status_code=400, detail="Reward amount must be greater than zero")
+
+    exp_dt = None
+    if body.expires_at:
+        try:
+            exp_dt = datetime.fromisoformat(body.expires_at)
+            if exp_dt.tzinfo is None:
+                exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid expiration date format")
+
+    from app.models.redeem import RedeemCode
+    async with AsyncSessionLocal() as db:
+        # Check duplicate code
+        dup = (await db.execute(select(RedeemCode).where(func.upper(RedeemCode.code) == code_clean))).scalar_one_or_none()
+        if dup:
+            raise HTTPException(status_code=400, detail=f"Code '{code_clean}' already exists")
+
+        new_code = RedeemCode(
+            code=code_clean,
+            code_type=body.code_type,
+            reward_amount=body.reward_amount,
+            reward_type=body.reward_type,
+            min_deposit=max(0.0, body.min_deposit),
+            max_uses=max(1, body.max_uses),
+            used_count=0,
+            expires_at=exp_dt,
+            is_active=True,
+            note=body.note.strip() if body.note else None,
+        )
+        db.add(new_code)
+        await db.commit()
+        await db.refresh(new_code)
+
+    return {"success": True, "code": new_code.code, "id": new_code.id}
+
+
+@router.post("/admin/api/redeem/codes/{code_id}/toggle")
+async def api_toggle_redeem_code(code_id: int, _admin=Depends(get_current_admin)):
+    from app.models.redeem import RedeemCode
+    async with AsyncSessionLocal() as db:
+        c = await db.get(RedeemCode, code_id)
+        if not c:
+            raise HTTPException(status_code=404, detail="Code not found")
+        c.is_active = not c.is_active
+        await db.commit()
+    return {"success": True, "is_active": c.is_active}
+
+
+@router.delete("/admin/api/redeem/codes/{code_id}")
+async def api_delete_redeem_code(code_id: int, _admin=Depends(get_current_admin)):
+    from app.models.redeem import RedeemCode
+    async with AsyncSessionLocal() as db:
+        c = await db.get(RedeemCode, code_id)
+        if not c:
+            raise HTTPException(status_code=404, detail="Code not found")
+        await db.delete(c)
+        await db.commit()
+    return {"success": True}
+
+
+@router.get("/admin/api/redeem/usages")
+async def api_get_redeem_usages(_admin=Depends(get_current_admin)):
+    from app.services.redeem_service import list_recent_usages
+    return await list_recent_usages(limit=50)

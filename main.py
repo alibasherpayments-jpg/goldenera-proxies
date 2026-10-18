@@ -18,7 +18,7 @@ from aiogram.types import Update
 
 from app.core.config import settings
 from app.core.database import create_tables, engine
-from app.bot.handlers import start, deposit, wallet, my_proxies, catalog
+from app.bot.handlers import start, deposit, wallet, my_proxies, catalog, redeem
 from app.services.notifications import expiry_notification_loop
 
 logging.basicConfig(
@@ -35,6 +35,7 @@ dp = Dispatcher(storage=MemoryStorage())
 # Register all routers
 dp.include_router(start.router)
 dp.include_router(deposit.router)
+dp.include_router(redeem.router)
 dp.include_router(wallet.router)
 dp.include_router(my_proxies.router)
 dp.include_router(catalog.router)

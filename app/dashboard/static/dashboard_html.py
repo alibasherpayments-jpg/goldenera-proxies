@@ -223,6 +223,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       <li class="nav-item"><a href="/admin/users" class="nav-link">👥 Users & Accounts</a></li>
       <li class="nav-item"><a href="/admin/transactions" class="nav-link">📜 Transactions History</a></li>
       <li class="nav-item"><a href="/admin/deposits" class="nav-link">💳 Deposits <span class="nav-badge" id="pending-badge" style="display:none">0</span></a></li>
+      <li class="nav-item"><a href="/admin/redeem" class="nav-link">🎁 Redeem Codes</a></li>
       <li class="nav-item"><a href="/admin/proxies" class="nav-link">🔌 Active Proxies</a></li>
       <li class="nav-item"><a href="/admin/settings" class="nav-link">⚙️ Settings & Pricing</a></li>
       <li class="nav-item"><a href="/admin/broadcast" class="nav-link">📢 Broadcaster</a></li>

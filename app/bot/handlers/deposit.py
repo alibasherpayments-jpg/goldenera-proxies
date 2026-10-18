@@ -207,8 +207,12 @@ async def fsm_binance_txid(message: Message, state: FSMContext) -> None:
                 wallet = Wallet(user_id=user.id, balance=0.0, total_deposited=0.0, total_spent=0.0)
                 session.add(wallet)
 
-            wallet.balance = round(wallet.balance + amount_usd, 6)
-            wallet.total_deposited = round(wallet.total_deposited + amount_usd, 6)
+            from app.services.redeem_service import check_and_apply_deposit_bonus
+            bonus_usd = await check_and_apply_deposit_bonus(session, user.id, amount_usd)
+            total_credited = amount_usd + bonus_usd
+
+            wallet.balance = round(wallet.balance + total_credited, 6)
+            wallet.total_deposited = round(wallet.total_deposited + total_credited, 6)
 
             deposit = Deposit(
                 user_id=user.id,
@@ -453,8 +457,11 @@ async def cb_admin_approve(callback: CallbackQuery, bot: Bot) -> None:
         )
         wallet = wallet_result.scalar_one_or_none()
         if wallet:
-            wallet.balance = round(wallet.balance + deposit.amount_usd, 6)
-            wallet.total_deposited = round(wallet.total_deposited + deposit.amount_usd, 6)
+            from app.services.redeem_service import check_and_apply_deposit_bonus
+            bonus_usd = await check_and_apply_deposit_bonus(session, deposit.user_id, deposit.amount_usd)
+            total_credited = deposit.amount_usd + bonus_usd
+            wallet.balance = round(wallet.balance + total_credited, 6)
+            wallet.total_deposited = round(wallet.total_deposited + total_credited, 6)
 
         # Fetch the depositing user for notification
         user_result = await session.execute(

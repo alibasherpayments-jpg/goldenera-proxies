@@ -51,6 +51,12 @@ REPLY_MENU_TEXTS = {
         "ru": "🌐 Сменить язык",
         "hi": "🌐 भाषा बदलें",
     },
+    "redeem": {
+        "ar": "🎁 كود الهدية (Redeem)",
+        "en": "🎁 Redeem Code",
+        "ru": "🎁 Промокод",
+        "hi": "🎁 प्रोमो कोड",
+    },
 }
 
 ALL_BUY_TEXTS = set(REPLY_MENU_TEXTS["buy"].values()) | {"🚀 Buy 5G Proxies", "🚀 شراء بروكسي", "شراء بروكسي", "Buy 5G Proxies"}
@@ -59,6 +65,7 @@ ALL_DEPOSIT_TEXTS = set(REPLY_MENU_TEXTS["deposit"].values()) | {"💳 Deposit F
 ALL_WALLET_TEXTS = set(REPLY_MENU_TEXTS["wallet"].values()) | {"💼 My Wallet", "💼 المحفظة والحساب", "💼 Wallet & Points", "💼 المحفظة والنقاط", "المحفظة", "Wallet & Points", "Wallet"}
 ALL_SUPPORT_TEXTS = set(REPLY_MENU_TEXTS["support"].values()) | {"💬 Direct Support", "💬 الدعم الفني", "الدعم", "Direct Support"}
 ALL_LANG_TEXTS = set(REPLY_MENU_TEXTS["language"].values()) | {"🌐 Change Language", "🌐 تغيير اللغة", "Language", "تغيير اللغة"}
+ALL_REDEEM_TEXTS = set(REPLY_MENU_TEXTS["redeem"].values()) | {"🎁 Redeem Code", "🎁 كود الهدية", "كود الهدية", "Redeem Code", "Redeem"}
 
 
 def reply_main_menu_kb(lang: str) -> ReplyKeyboardMarkup:
@@ -75,8 +82,11 @@ def reply_main_menu_kb(lang: str) -> ReplyKeyboardMarkup:
                 KeyboardButton(text=REPLY_MENU_TEXTS["wallet"][lang_key]),
             ],
             [
-                KeyboardButton(text=REPLY_MENU_TEXTS["support"][lang_key]),
+                KeyboardButton(text=REPLY_MENU_TEXTS["redeem"][lang_key]),
                 KeyboardButton(text=REPLY_MENU_TEXTS["language"][lang_key]),
+            ],
+            [
+                KeyboardButton(text=REPLY_MENU_TEXTS["support"][lang_key]),
             ],
         ],
         resize_keyboard=True,
@@ -85,7 +95,7 @@ def reply_main_menu_kb(lang: str) -> ReplyKeyboardMarkup:
 
 
 def main_menu_kb(lang: str) -> InlineKeyboardMarkup:
-    """Main menu with 6 options arranged in a 2-column grid."""
+    """Main menu with options arranged in a 2-column grid."""
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -97,8 +107,8 @@ def main_menu_kb(lang: str) -> InlineKeyboardMarkup:
                 InlineKeyboardButton(text=t("menu_wallet", lang), callback_data="menu:wallet"),
             ],
             [
+                InlineKeyboardButton(text=t("menu_redeem", lang), callback_data="redeem:enter"),
                 InlineKeyboardButton(text=t("menu_support", lang), url=SUPPORT_URL),
-                InlineKeyboardButton(text=t("menu_language", lang), callback_data="menu:language"),
             ],
         ]
     )

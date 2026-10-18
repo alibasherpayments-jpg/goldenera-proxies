@@ -11,6 +11,7 @@ from app.dashboard.static.dashboard_html import DASHBOARD_HTML
 from app.dashboard.static.users_html import USERS_HTML
 from app.dashboard.static.transactions_html import TRANSACTIONS_HTML
 from app.dashboard.static.deposits_html import DEPOSITS_HTML
+from app.dashboard.static.redeem_html import REDEEM_HTML
 from app.dashboard.static.proxies_html import PROXIES_HTML
 from app.dashboard.static.settings_html import SETTINGS_HTML
 from app.dashboard.static.broadcast_html import BROADCAST_HTML
@@ -60,6 +61,14 @@ async def deposits_page(admin_token: Optional[str] = Cookie(None, alias="admin_t
     if not admin:
         return RedirectResponse(url="/admin/login", status_code=302)
     return HTMLResponse(content=DEPOSITS_HTML.replace("{{ADMIN_USER}}", admin.get("sub", "admin")))
+
+
+@router.get("/admin/redeem", response_class=HTMLResponse)
+async def redeem_page(admin_token: Optional[str] = Cookie(None, alias="admin_token")):
+    admin = _require_admin(admin_token)
+    if not admin:
+        return RedirectResponse(url="/admin/login", status_code=302)
+    return HTMLResponse(content=REDEEM_HTML.replace("{{ADMIN_USER}}", admin.get("sub", "admin")))
 
 
 @router.get("/admin/proxies", response_class=HTMLResponse)
